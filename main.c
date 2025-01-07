@@ -83,10 +83,26 @@ struct Cheat cheat_new(char name[32]) {
     cheat.reset_opponent = 0;
     cheat.match_high = 0;
     cheat.match_low = 0;
+    return cheat;
 }
-void cheats_init(struct Cheat *cheats) {
-    cheats[0] = cheat_new("xxx");
-    cheats[1] = cheat_new("xxx");
+void cheat_print(struct Cheat *cheat) {
+    printf("%s ", cheat->name);
+    if (cheat->add != 0) printf("adds %d, ", cheat->add);
+    if (cheat->sub != 0) printf("subtracts %d, ", cheat->sub);
+    if (cheat->div != 0) printf("divides by %d, ", cheat->div);
+    if (cheat->mult != 0) printf("multiplies by %d, ", cheat->mult);
+    if (cheat->set != 0) printf("sets to %d, ", cheat->set);
+    if (cheat->reverse) printf("reverses scores, ");
+    if (cheat->invert) printf("inverts scores, ");
+    if (cheat->reset_both) printf("resets both scores, ");
+    if (cheat->reset_player) printf("resets player score, ");
+    if (cheat->reset_opponent) printf("resets opponent score, ");
+    if (cheat->match_high) printf("matches high score, ");
+    if (cheat->match_low) printf("matches low score, ");
+}
+void cheats_list_init(struct Cheat *cheats_list) {
+    cheats_list[0] = cheat_new("c1");
+    cheats_list[1] = cheat_new("c2");
 }
 
 struct State {
@@ -150,9 +166,17 @@ void cmd_hold(struct Match *match) {
     match->player_held = true;
 }
 
-void cmd_cheat_list(struct State *state, struct Cheat cheats[]) {
+void cmd_cheat_list(struct State *state, struct Cheat cheats_list[]) {
     for (int i = 0; i < state->cheats_cap; i++) {
-        if (state->cheats[i] != -1) printf("%d.%s \n", i, cheats[state->cheats[i]].name);
+        // if (state->cheats[i] != -1) printf("%d.%s \n", i, cheats_list[state->cheats[i]].name);
+        printf("%d. ", i);
+        if (state->cheats[i] != -1) {
+            cheat_print(&cheats_list[state->cheats[i]]);
+        }
+        else {
+            printf("---");
+        }
+        printf("\n");
     }
     printf("\n");
 }
@@ -171,15 +195,15 @@ int main() {
     srand(seed);
     struct State state = state_new();
     struct Match match = match_new();
-    struct Cheat cheats[32];
-    cheats_init(cheats);
-    // state_gain_cheat(&state, 1);
+    struct Cheat cheats_list[32];
+    cheats_list_init(cheats_list);
+    state_gain_cheat(&state, 1);
     int run = 1;
     while(run) {
         char input;
         printf(">> ");
         scanf("%c", &input);
-        printf("cheat %s", cheats[0].name);
+        // printf("cheat %s", cheats[0].name);
         // clear the buffer
         while(getchar() != '\n');
         clear_screen();
@@ -191,7 +215,7 @@ int main() {
                 cmd_hold(&match);
                 break;
             case 'c':
-                cmd_cheat_list(&state, cheats);
+                cmd_cheat_list(&state, cheats_list);
                 break;
             case 'q':
                 run = 0;
