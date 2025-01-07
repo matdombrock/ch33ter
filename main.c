@@ -7,15 +7,17 @@
 #include <ctype.h>  // toupper
 
 #define MAX_CHEATS 8
+#define GOAL_NUM 33
+#define TERM_WIDTH 66
 
 // Config
 #define DISABLE_COLORS 0
 #define USE_RAW_INPUT 1
 
-#define CMD_ROLL 'q'
+#define CMD_ROLL 'r'
 #define CMD_HOLD 'w'
 #define CMD_CHEAT_LIST 'e'
-#define CMD_OPPONENT 'r'
+#define CMD_OPPONENT 'q'
 #define CMD_QUIT 'c'
 #define CMD_HELP 'h'
 #define CMD_USE_CHEAT_1 '1'
@@ -27,14 +29,14 @@
 #define CMD_USE_CHEAT_7 '7'
 #define CMD_USE_CHEAT_8 '8'
 
-#define CLR1_CLR "\033[0;37m"
-#define CLR2_CLR "\033[0;91m"
-#define CLR3_CLR "\033[0;94m"
-#define CLR4_CLR "\033[0;92m"
-#define CLR5_CLR "\033[0;93m"
-#define CLR6_CLR "\033[0;95m"
-#define CLR7_CLR "\033[0;96m"
-#define CLR8_CLR "\033[1;31m"
+#define CLR1_CLR "\033[1;97m" // bright white
+#define CLR2_CLR "\033[1;91m" // bright red
+#define CLR3_CLR "\033[1;94m" // bright blue
+#define CLR4_CLR "\033[1;32m" // lime green
+#define CLR5_CLR "\033[1;33m" // vibrant yellow
+#define CLR6_CLR "\033[1;95m" // bright magenta
+#define CLR7_CLR "\033[1;96m" // bright cyan
+#define CLR8_CLR "\033[1;31m" // bright bold red
 
 //
 // Utils
@@ -98,21 +100,21 @@ void printfc(enum Color color, const char *format, ...) {
     clr_end();
 }
 void print_div() {
-    printfc(CLR4, "▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂ ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂ ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂\n");
+    printfc(CLR4, "▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂  ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂  ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂\n");
 }
-void print_screen_title(char title[64]) {
+void print_screen_title(char title[TERM_WIDTH]) {
     printfc(CLR6, "█ %s ", title);
-    for (int i = 0; i < 64 - strlen(title) - 2; i++) {
+    for (int i = 0; i < TERM_WIDTH - strlen(title) - 2; i++) {
         printfc(CLR6, "█");
     }
     // printfc(CLR1, "\n\n");
     printfc(CLR1, "\n");
     print_div();
 }
-void print_subtitle(enum Color color, char subtitle[64]) {
-    printfc(color, "███████ %s ███████\n", subtitle);
+void print_subtitle(enum Color color, char subtitle[TERM_WIDTH - 16]) {
+    printfc(color, "███ %s █████████████████████\n", subtitle);
 }
-void clear_screen(char title[64]) {
+void clear_screen(char title[TERM_WIDTH]) {
     // Clear screen
     #ifdef _WIN32
         system("cls");
@@ -123,7 +125,7 @@ void clear_screen(char title[64]) {
 }
 void to_continue() {
     // Wait for user input
-    printfc(CLR6, "\n\n██████████████      Press any key to continue      ██████████████\n");
+    printfc(CLR6, "\n\n██████████████       Press any key to continue       ██████████████\n");
     system("stty raw");
     getchar();
     system("stty cooked");
@@ -247,6 +249,29 @@ void cheats_list_init(struct Cheat *cheats_list) {
     cheats_list[10].div = 4;
     cheats_list[11] = cheat_new("lucky");
     cheats_list[11].set = 7;
+    cheats_list[12] = cheat_new("unlucky");
+    cheats_list[12].set = GOAL_NUM + 1;
+    cheats_list[13] = cheat_new("bfg");
+    cheats_list[13].set = GOAL_NUM;
+    cheats_list[14] = cheat_new("sniper");
+    cheats_list[14].set = GOAL_NUM - 1;
+    cheats_list[15] = cheat_new("scattergun");
+    cheats_list[15].set = GOAL_NUM - 7;
+    cheats_list[16] = cheat_new("warlock");
+    cheats_list[16].mult = 2;
+    cheats_list[17] = cheat_new("wizard");
+    cheats_list[17].mult = 4;
+    cheats_list[18] = cheat_new("sorcerer");
+    cheats_list[18].mult = 8;
+    cheats_list[19] = cheat_new("saint");
+    cheats_list[19].set = 1;
+    cheats_list[19].reverse = 1;
+    cheats_list[20] = cheat_new("sinner");
+    cheats_list[20].set = 1;
+    cheats_list[20].invert = 1;
+    cheats_list[21] = cheat_new("savior");
+    cheats_list[21].reset_both = 1;
+    cheats_list[21].set = GOAL_NUM - 1;
 }
 
 //
@@ -306,13 +331,9 @@ void loot_box(struct State *state, struct Cheat cheats_list[]) {
     printfc(CLR3, "You got a loot box!\n");
     int cheat_list_index = rand() % CHEATS_AMT;
     bool rc = state_gain_cheat(state, cheat_list_index);
-    if (rc) {
-        printfc(CLR1, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
-        cheat_print(&cheats_list[cheat_list_index]);
-    }
-    else {
-        printfc(CLR2, "Attempted to gain %s\nbut there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
-    }
+    if (rc) printfc(CLR1, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
+    else printfc(CLR2, "Attempted to gain %s\nbut there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
+    cheat_print(&cheats_list[cheat_list_index]);
     print_div();
     printfc(CLR1, "\n");
     state_print_cheats(state, cheats_list);
@@ -330,26 +351,28 @@ struct Match {
     bool player_held;
     bool opponent_held;
     bool opponent_aggressive;
+    bool ended;
     char opponent_name[64];
 };
 void match_print_score_bar(int total) {
-    for (int i = 0; i < 21; i++) {
+    int per = (int)((float)TERM_WIDTH / GOAL_NUM + 0.5f);
+    for (int i = 0; i < GOAL_NUM; i++) {
         if (i < total) {
-            printfc(total > 21 ? CLR2 : CLR5, "█");
-            printfc(total > 21 ? CLR2 : CLR5, "█");
-            printfc(total > 21 ? CLR2 : CLR5, "█");
+            for (int j = 0; j < per; j++) {
+                printfc(total > GOAL_NUM ? CLR2 : CLR5, "█");
+            }
         } else {
-            printfc(CLR8, "▒");
-            printfc(CLR8, "▒");
-            printfc(CLR8, "▒");
+            for (int j = 0; j < per; j++) {
+                printfc(CLR8, "▒");
+            }
         }
     }
-    printfc(CLR1, "||");
+    printfc(CLR3, "|");
 }
 void match_print_opponent(struct Match *match) {
     printfc(CLR6, "Opponent: %s\n", match->opponent_name);
     printfc(CLR5, "⚄⚀ Die sides: %d\n", match->die_sides);
-    printfc(CLR5, "㈫ Caution: %d (holds at %d) \n", match->opponent_caution, 21 - match->opponent_caution);
+    printfc(CLR5, "㈫ Caution: %d (holds at %d) \n", match->opponent_caution, GOAL_NUM - match->opponent_caution);
     printfc(CLR5, "㊋ Aggressive: %s\n", match->opponent_aggressive ? "yes" : "no");
 }
 void match_print(struct Match *match) {
@@ -367,10 +390,11 @@ void match_start(struct Match *match) {
     match->opponent_total = 0;
     match->opponent_caution = rand() % 11;
     match->turn = 0;
-    match->die_sides = rand() % 17 + 3;
+    match->die_sides = (rand() % (GOAL_NUM -3)) + 3;
     match->player_held = false;
     match->opponent_held = false;
     match->opponent_aggressive = rand() % 2;
+    match->ended = false;
     strcpy(match->opponent_name, "OpponentX");
     opponent_name_rand(match->opponent_name);
     print_div();
@@ -383,7 +407,7 @@ struct Match match_new() {
     match_start(&match);
     return match;
 }
-void match_end(struct Match *match, struct State *state, struct Cheat cheats_list[], int won, char msg[64]) { // won = 2 == draw
+void match_end(struct Match *match, struct State *state, struct Cheat cheats_list[], int won, char msg[32]) { // won = 2 == draw
     print_subtitle(CLR2, "Match Ended");
     to_continue();
     enum Color result_colors[3] = {CLR2, CLR4, CLR5};
@@ -413,36 +437,36 @@ void match_end(struct Match *match, struct State *state, struct Cheat cheats_lis
     if ( won == 1) {
         loot_box(state, cheats_list);
     }
-    match_start(match);
+    match->ended = true;
 }
 void match_check(struct Match *match, struct State *state, struct Cheat cheats_list[]) {
-    if (match->player_total == 21 && match->opponent_total == 21) {
-        match_end(match, state, cheats_list, 2, "Draw! (both 21)");
+    if (match->player_total == GOAL_NUM && match->opponent_total == GOAL_NUM) {
+        match_end(match, state, cheats_list, 2, "Both slammed it!");
     }
-    else if (match->player_total == 21) {
-        match_end(match, state, cheats_list, 1, "Player wins! (21)");
+    else if (match->player_total == GOAL_NUM) {
+        match_end(match, state, cheats_list, 1, "Player slammed it!");
     }
-    else if (match->opponent_total == 21) {
-        match_end(match, state, cheats_list, 0, "Opponent wins! (21)");
+    else if (match->opponent_total == GOAL_NUM) {
+        match_end(match, state, cheats_list, 0, "Opponent slammed it!");
     }
-    else if (match->player_total > 21 && match->opponent_total > 21) {
-        match_end(match, state, cheats_list, 2, "Draw! (both bust)");
+    else if (match->player_total > GOAL_NUM && match->opponent_total > GOAL_NUM) {
+        match_end(match, state, cheats_list, 2, "Both bust!");
     }
-    else if (match->opponent_total > 21) {
+    else if (match->opponent_total > GOAL_NUM) {
         match_end(match, state, cheats_list, 1, "Opponent busts!");
     }
-    else if (match->player_total > 21) {
+    else if (match->player_total > GOAL_NUM) {
         match_end(match, state, cheats_list, 0, "Player busts!");
     }
     else if (match->player_held && match->opponent_held) {
         if (match->player_total == match->opponent_total) {
-            match_end(match, state, cheats_list, 2, "Draw!");
+            match_end(match, state, cheats_list, 2, "Even scores!");
         }
         else if (match->player_total > match->opponent_total) {
-            match_end(match, state, cheats_list, 1, "Player wins!");
+            match_end(match, state, cheats_list, 1, "Player wins with a higher score!");
         } 
         else {
-            match_end(match, state, cheats_list, 0, "Opponent wins!");
+            match_end(match, state, cheats_list, 0, "Opponent wins with a higher score!");
         }
     }
 }
@@ -455,7 +479,7 @@ int roll_die(int sides) {
 }
 void opponent_turn(struct Match *match) {
     // Greater than caution and (not aggressive or greater than player)
-    if (match->opponent_total >= (21 - match->opponent_caution) && (!match->opponent_aggressive || match->opponent_total >= match->player_total)) {
+    if (match->opponent_total >= (GOAL_NUM - match->opponent_caution) && (!match->opponent_aggressive || match->opponent_total >= match->player_total)) {
         printfc(CLR5, "%s holds\n", match->opponent_name);
         match->opponent_held = true;
         return;
@@ -528,8 +552,8 @@ void cmd_use_cheat(struct State *state, struct Match *match, int cheat_index, st
     }
     if (cheat.invert) {
         printfc(CLR1, "Inverting scores\n");
-        match->player_total = 21 - match->player_total;
-        match->opponent_total = 21 - match->opponent_total;
+        match->player_total = GOAL_NUM - match->player_total;
+        match->opponent_total = GOAL_NUM - match->opponent_total;
     }
     if (cheat.reset_both) {
         printfc(CLR1, "Resetting both scores\n");
@@ -590,9 +614,16 @@ int main() {
     // Setup basic game state
     struct State state = state_new();
     // Welcome
-    clear_screen("ch33ter");
-    printfc(CLR6, "Welcome to ch33ter\n");
+    clear_screen("WELCOME");
+    printfc(CLR2, "       .__    ________ ________  __    \n");
+    printfc(CLR3, "  ____ |  |__ \\_____  \\\\_____  \\/  |_  ___________\n");
+    printfc(CLR4, "_/ ___\\|  |  \\  _(__  <  _(__  <   __\\/ __ \\_  __ \\\n");
+    printfc(CLR5, "\\  \\___|   Y  \\/       \\/       \\  | \\  ___/|  | \\/\n");
+    printfc(CLR6, " \\___  >___|  /______  /______  /__|  \\___  >__|   \n");
+    printfc(CLR7, "     \\/     \\/       \\/       \\/          \\/       \n");
+
     printfc(CLR1, "You will be challenged in a game something\nlike what you might call '21'.\n");
+    printfc(CLR1, "Here, the goal is to reach %d without going over.\nAnd we play with custom dice!\n", GOAL_NUM);
     printfc(CLR1, "Your opponents will be many. Some will be\nstrong some will be weak.\n");
     printfc(CLR4, "They will bring their own dice. You must account for that.\n");
     printfc(CLR5, "The best way to account for that might be cheating...\n");
@@ -605,19 +636,25 @@ int main() {
     loot_box(&state, cheats_list);
     loot_box(&state, cheats_list);
     loot_box(&state, cheats_list);
-    loot_box(&state, cheats_list);
     // Intro
     clear_screen("Intro");
-    printfc(CLR3, "You have been given some cheats to start with.\n");
-    printfc(CLR1, "You can use these cheats to help you win matches.\n");
-    printfc(CLR1, "You can also gain more cheats by winning matches.\n");
-    printfc(CLR1, "You can inspect your cheats at any time by pressing %c\n", CMD_CHEAT_LIST);
-    printfc(CLR1, "You can inspect your opponent at any time by pressing %c\n", CMD_OPPONENT);
-    printfc(CLR1, "You can roll by pressing %c\n", CMD_ROLL);
-    printfc(CLR1, "You can hold by pressing %c\n", CMD_HOLD);
-    printfc(CLR1, "You can use cheats by pressing %c, %c and so on\n", CMD_USE_CHEAT_1, CMD_USE_CHEAT_2);
-    printfc(CLR1, "The goal is to reach 21 without going over.\n");
-    printfc(CLR7, "\n██████████████ Press %c to see the help screen during a match! ██████████████\n", CMD_HELP);
+    printfc(CLR4, "You have been given some cheats to start with\n");
+    printfc(CLR3, "-  use these cheats to help you win matches\n");
+    printfc(CLR3, "-  also gain more cheats by winning matches\n");
+    printfc(CLR3, "-  inspect your cheats at any time by pressing");
+    printfc(CLR6, " %c\n", CMD_CHEAT_LIST);
+    printfc(CLR3, "-  inspect your opponent at any time by pressing");
+    printfc(CLR6, " %c\n", CMD_OPPONENT);
+    printfc(CLR3, "-  roll by pressing");
+    printfc(CLR6, " %c\n", CMD_ROLL);
+    printfc(CLR3, "-  hold by pressing");
+    printfc(CLR6, " %c\n", CMD_HOLD);
+    printfc(CLR3, "-  use cheats by pressing");
+    printfc(CLR6, " %c, %c", CMD_USE_CHEAT_1, CMD_USE_CHEAT_2);
+    printfc(CLR3, " and so on\n");
+    printfc(CLR4, "The goal is to get as high of a score as you can\nwithout going over");
+    printfc(CLR4, " %d\n", GOAL_NUM);
+    printfc(CLR7, "\n███ Press %c to see the help screen during a match! ██████████████\n", CMD_HELP);
     to_continue();
     // Start first match
     clear_screen("ch33ter");
@@ -627,7 +664,7 @@ int main() {
         print_div();
         char input;
         if (USE_RAW_INPUT) {
-            printfc(CLR6, "██████████████ Awaiting Input ███");
+            printfc(CLR6, "██████████████▛ Awaiting Input ▜▛ ");
             system("stty raw");
             input = getchar();
             system("stty cooked");
@@ -699,6 +736,65 @@ int main() {
             printfc(CLR2, "You have no more gold.\nYou are brutally murdered for your inability to pay your debts.\n");
             print_div();
             run = 0;
+            break; // end game
+        }
+        if (match.ended) {
+            if (rand() % 3 == 0) {
+                print_subtitle(CLR3, "found extra loot box!");
+                printfc(CLR1, "After the last match you found\nan extra loot box in the dust!\n");
+                to_continue();
+                loot_box(&state, cheats_list);
+            }
+            if (rand() % 5 == 0) {
+                print_subtitle(CLR3, "found a hacker!");
+                printfc(CLR1, "After the last match you come across\na hacker who is willing to trade cheats for gold!\n");
+                to_continue();
+            }
+            if (rand() % 5 == 0) {
+                print_subtitle(CLR3, "found a patron!");
+                printfc(CLR1, "After the last match you come across\na patron who likes the way you play!\n");
+                int gives = rand() % 5 + 1;
+                printfc(CLR1, "They give you %d gold!\n", gives);
+                state.gold += gives;
+                to_continue();
+            }
+            if (rand() % 5 == 0) {
+                print_subtitle(CLR3, "found a patron hacker!");
+                printfc(CLR1, "After the last match you come across\na patron hacker who likes the way you play!\n");
+                printfc(CLR1, "They give you a loot box!\n");
+                to_continue();
+                loot_box(&state, cheats_list);
+            }
+            if (rand() % 5 == 0) {
+                print_subtitle(CLR2, "found a thief!");
+                printfc(CLR1, "After the last match you are assaulted by\na thief who looks mean!\n");
+                int takes = rand() % 5 + 1;
+                printfc(CLR1, "They take %d gold from you!\n", takes);
+                state.gold -= takes;
+                if (state.gold < 0) {
+                    printfc(CLR1, "They feel a little bad about taking your last gold.\n");
+                    printfc(CLR1, "They give you one piece back!\n");
+                    state.gold = 1;
+                }
+                to_continue();
+            }
+            if (rand() % 5 == 0) {
+                print_subtitle(CLR2, "found a hacking thief!");
+                printfc(CLR1, "After the last match you are assaulted by\na hacking thief who looks kinda wimpy!\n");
+                printfc(CLR1, "But they have some 'hitek' hacking tools!\n");
+                int slot = rand() % state.cheats_cap;
+                printfc(CLR1, "They try to take the cheat in slot %d", slot + 1);
+                if (state.cheats[slot] != -1) {
+                    printfc(CLR1, " and they get it!\n");
+                    cheat_print(&cheats_list[state.cheats[slot]]);
+                    state.cheats[slot] = -1;
+                }
+                else {
+                    printfc(CLR1, " but you have no cheats in slot one!\n");
+                }
+                to_continue();
+            }  
+            match_start(&match);
         }
     }
     printfc(CLR1, "goodbye\n");
