@@ -7,14 +7,13 @@
 #include <ctype.h>  // toupper
 
 #define DISABLE_COLORS 0
-
-#define MAX_CHEATS 8
+#define USE_RAW_INPUT 1
 
 #define CMD_ROLL 'q'
 #define CMD_HOLD 'w'
 #define CMD_CHEAT_LIST 'e'
 #define CMD_OPPONENT 'r'
-#define CMD_QUIT 'x'
+#define CMD_QUIT 'c'
 #define CMD_HELP 'h'
 #define CMD_USE_CHEAT_1 '1'
 #define CMD_USE_CHEAT_2 '2'
@@ -24,6 +23,8 @@
 #define CMD_USE_CHEAT_6 '6'
 #define CMD_USE_CHEAT_7 '7'
 #define CMD_USE_CHEAT_8 '8'
+
+#define MAX_CHEATS 8
 
 //
 // Utils
@@ -135,11 +136,11 @@ void clear_screen(char title[64]) {
 }
 void to_continue() {
     // Wait for user input
-    printfc(RED, "\n\n-- Enter 'k' to continue --\n");
+    printfc(RED, "\n\n-- Press any key to continue --\n");
+    system("stty raw");
     getchar();
+    system("stty cooked");
     clear_screen("ch33ter");
-    // clear the buffer
-    while(getchar() != '\n');
 }
 
 //
@@ -178,7 +179,7 @@ struct State {
 struct State state_new() {
     struct State state;
     state.gold = 0;
-    state.cheats_cap = 2;
+    state.cheats_cap = 4;
     for (int i = 0; i < MAX_CHEATS; i++) {
         state.cheats[i] = -1;
     }
@@ -269,6 +270,23 @@ void cheats_list_init(struct Cheat *cheats_list) {
 }
 
 //
+// Loot box
+//
+void loot_box(struct State *state, struct Cheat cheats_list[]) {
+    clear_screen("Loot Box");
+    printfc(WHITE, "You got a loot box!\n");
+    int cheat_list_index = rand() % CHEATS_AMT;
+    bool rc = state_gain_cheat(state, cheat_list_index);
+    if (rc) {
+        printfc(WHITE, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
+        cheat_print(&cheats_list[cheat_list_index]);
+    }
+    else {
+        printfc(WHITE, "Attempted to gain %s but there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
+    }
+    to_continue();
+}
+//
 // Match
 //
 struct Match {
@@ -347,22 +365,11 @@ void match_end(struct Match *match, struct State *state, struct Cheat cheats_lis
     match_print_opponent(match);
     match_print(match);
     printfc(WHITE, "Gold: %d\n", state->gold);
+    to_continue();
     // Get new cheat
     if ( won == 1) {
-        print_div();
-        printfc(WHITE, "Gained a cheat:\n");
-        int cheat_list_index = rand() % CHEATS_AMT;
-        bool rc = state_gain_cheat(state, cheat_list_index);
-        if (!rc) {
-            printfc(WHITE, "Attempted to gain %s but there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
-            cheat_print(&cheats_list[cheat_list_index]);
-        }
-        else {
-            printfc(WHITE, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
-            cheat_print(&cheats_list[cheat_list_index]);
-        }
+        loot_box(state, cheats_list);
     }
-    to_continue();
     match_start(match);
 }
 void match_check(struct Match *match, struct State *state, struct Cheat cheats_list[]) {
@@ -402,19 +409,6 @@ void match_check(struct Match *match, struct State *state, struct Cheat cheats_l
 //
 int roll_die(int sides) {
     return rand() % sides + 1;
-}
-void loot_box(struct State *state, struct Cheat cheats_list[]) {
-    clear_screen("Loot Box");
-    int cheat_list_index = rand() % CHEATS_AMT;
-    bool rc = state_gain_cheat(state, cheat_list_index);
-    if (rc) {
-        printfc(WHITE, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
-        cheat_print(&cheats_list[cheat_list_index]);
-    }
-    else {
-        printfc(WHITE, "Attempted to gain %s but there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
-    }
-    to_continue();
 }
 void opponent_turn(struct Match *match) {
     // Greater than caution and (not aggressive or greater than player)
@@ -576,14 +570,23 @@ int main() {
     struct Match match = match_new();
     int run = 1;
     while(run) {
-        char input;
         print_div();
-        printfc(LIGHTBLUE, ">> ");
-        scanf("%c", &input);
-        // printfc(WHITE, "cheat %s", cheats[0].name);
-        // clear the buffer
-        while(getchar() != '\n');
-        clear_screen("ch33ter");
+        char input;
+        if (USE_RAW_INPUT) {
+            printfc(LIGHTBLUE, ">> ");
+            system("stty raw");
+            input = getchar();
+            system("stty cooked");
+            clear_screen("ch33ter");   
+        }
+        else {
+            printfc(LIGHTBLUE, ">> ");
+            scanf("%c", &input);
+            // clear the buffer
+            while(getchar() != '\n');
+            clear_screen("ch33ter");
+        }
+        bool show_match = 1;
         switch (input) {
             case CMD_USE_CHEAT_1:
                 cmd_use_cheat(&state, &match, 0, cheats_list);
@@ -623,6 +626,7 @@ int main() {
                 break;
             case CMD_HELP:
                 cmd_help();
+                show_match = 0;
                 break;
             case CMD_QUIT:
                 run = 0;
@@ -630,7 +634,7 @@ int main() {
             default:
                 printfc(WHITE, "Invalid input\n");
         }
-        match_print(&match);
+        if (show_match) match_print(&match);
         // Check for match end
         match_check(&match, &state, cheats_list);
     }
