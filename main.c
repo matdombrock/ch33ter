@@ -28,7 +28,7 @@
 //
 // Utils
 //
-enum Color {
+enum Color { // TODO: use a color scheme of 8 colors instead of so many - can add bold
     RED,
     GREEN,
     YELLOW,
@@ -305,8 +305,8 @@ void match_print(struct Match *match) {
 }
 void match_print_opponent(struct Match *match) {
     printfc(WHITE, "Opponent: %s\n", match->opponent_name);
-    printfc(WHITE, "Caution: %d (holds at %d) \n", match->opponent_caution, 21 - match->opponent_caution);
-    printfc(WHITE, "Aggressive: %d\n", match->opponent_aggressive);
+    printfc(WHITE, "⚠ Caution: %d (holds at %d) \n", match->opponent_caution, 21 - match->opponent_caution);
+    printfc(WHITE, "⚠ Aggressive: %d\n", match->opponent_aggressive);
 }
 void match_start(struct Match *match) {
     match->player_total = 0;
