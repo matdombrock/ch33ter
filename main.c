@@ -6,6 +6,9 @@
 #include <stdarg.h> // va_list, va_start, va_end
 #include <ctype.h>  // toupper
 
+#define MAX_CHEATS 8
+
+// Config
 #define DISABLE_COLORS 0
 #define USE_RAW_INPUT 1
 
@@ -24,76 +27,55 @@
 #define CMD_USE_CHEAT_7 '7'
 #define CMD_USE_CHEAT_8 '8'
 
-#define MAX_CHEATS 8
+#define CLR1_CLR "\033[0;37m"
+#define CLR2_CLR "\033[0;91m"
+#define CLR3_CLR "\033[0;94m"
+#define CLR4_CLR "\033[0;92m"
+#define CLR5_CLR "\033[0;93m"
+#define CLR6_CLR "\033[0;95m"
+#define CLR7_CLR "\033[0;96m"
+#define CLR8_CLR "\033[1;31m"
 
 //
 // Utils
 //
 enum Color { // TODO: use a color scheme of 8 colors instead of so many - can add bold
-    RED,
-    GREEN,
-    YELLOW,
-    BLUE,
-    MAGENTA,
-    CYAN,
-    WHITE,
-    LIGHTRED,
-    LIGHTGREEN,
-    LIGHTBLUE,
-    LIGHTMAGENTA,
-    LIGHTCYAN,
-    LIGHTYELLOW,
-    GREY
+    CLR1,
+    CLR2,
+    CLR3,
+    CLR4,
+    CLR5,
+    CLR6,
+    CLR7,
+    CLR8
 };
 
 void clr_start(enum Color color) {
     if (DISABLE_COLORS) return;
     switch (color) {
-        case RED:
-            printf("\033[0;31m");
+        case CLR1:
+            printf(CLR1_CLR);
             break;
-        case GREEN:
-            printf("\033[0;32m");
+        case CLR2:
+            printf(CLR2_CLR);
             break;
-        case YELLOW:
-            printf("\033[0;33m");
+        case CLR3:
+            printf(CLR3_CLR);
             break;
-        case BLUE:
-            printf("\033[0;34m");
+        case CLR4:
+            printf(CLR4_CLR);
             break;
-        case MAGENTA:
-            printf("\033[0;35m");
+        case CLR5:
+            printf(CLR5_CLR);
             break;
-        case CYAN:
-            printf("\033[0;36m");
+        case CLR6:
+            printf(CLR6_CLR);
             break;
-        case WHITE:
-            // nothing
+        case CLR7:
+            printf(CLR7_CLR);
             break;
-        case LIGHTRED:
-            printf("\033[1;31m");
-            break;
-        case LIGHTGREEN:
-            printf("\033[1;32m");
-            break;
-        case LIGHTBLUE:
-            printf("\033[1;34m");
-            break;
-        case LIGHTMAGENTA:
-            printf("\033[1;35m");
-            break;
-        case LIGHTCYAN:
-            printf("\033[1;36m");
-            break;
-        case LIGHTYELLOW:
-            printf("\033[1;33m");
-            break;
-        case GREY:
-            // printf("\033[0;37m"); // darker grey
-            printf("\033[1;30m");
-            break;
-        default:
-            printf("");
+        case CLR8:
+            printf(CLR8_CLR);
             break;
     }
 }
@@ -116,14 +98,14 @@ void printfc(enum Color color, const char *format, ...) {
     clr_end();
 }
 void print_div() {
-    printfc(GREEN, "▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂\n");
+    printfc(CLR4, "▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂\n");
 }
 void print_screen_title(char title[64]) {
-    printfc(GREEN, "█%s", title);
+    printfc(CLR4, "█%s", title);
     for (int i = 0; i < 64 - strlen(title); i++) {
-        printfc(GREEN, "█");
+        printfc(CLR4, "█");
     }
-    printfc(WHITE, "\n\n");
+    printfc(CLR1, "\n\n");
 }
 void clear_screen(char title[64]) {
     // Clear screen
@@ -136,7 +118,7 @@ void clear_screen(char title[64]) {
 }
 void to_continue() {
     // Wait for user input
-    printfc(RED, "\n\n-- Press any key to continue --\n");
+    printfc(CLR2, "\n\n-- Press any key to continue --\n");
     system("stty raw");
     getchar();
     system("stty cooked");
@@ -165,7 +147,7 @@ void opponent_name_rand(char *name) {
         "oldwald",
         "paldor"
     };
-    // sprintfc(WHITE, name, "%s.%s", opponent_names[rand() % 16], opponent_names[rand() % 16]);
+    // sprintfc(CLR1, name, "%s.%s", opponent_names[rand() % 16], opponent_names[rand() % 16]);
     strcpy(name, opponent_names[rand() % 16]);
 }
 //
@@ -240,20 +222,20 @@ struct Cheat cheat_new(char name[32]) {
     return cheat;
 }
 void cheat_print(struct Cheat *cheat) {
-    printfc(BLUE, "%s ", cheat->name);
-    if (cheat->add != 0) printfc(GREEN, "adds %d, ", cheat->add);
-    if (cheat->sub != 0) printfc(GREEN, "subtracts %d, ", cheat->sub);
-    if (cheat->div != 0) printfc(GREEN, "divides by %d, ", cheat->div);
-    if (cheat->mult != 0) printfc(GREEN, "multiplies by %d, ", cheat->mult);
-    if (cheat->set != 0) printfc(GREEN, "sets to %d, ", cheat->set);
-    if (cheat->reverse) printfc(GREEN, "reverses scores, ");
-    if (cheat->invert) printfc(GREEN, "inverts scores, ");
-    if (cheat->reset_both) printfc(GREEN, "resets both scores, ");
-    if (cheat->reset_player) printfc(GREEN, "resets player score, ");
-    if (cheat->reset_opponent) printfc(GREEN, "resets opponent score, ");
-    if (cheat->match_high) printfc(GREEN, "matches high score, ");
-    if (cheat->match_low) printfc(GREEN, "matches low score, ");
-    printfc(WHITE, "\n");
+    printfc(CLR3, "%s ", cheat->name);
+    if (cheat->add != 0) printfc(CLR4, "adds %d, ", cheat->add);
+    if (cheat->sub != 0) printfc(CLR4, "subtracts %d, ", cheat->sub);
+    if (cheat->div != 0) printfc(CLR4, "divides by %d, ", cheat->div);
+    if (cheat->mult != 0) printfc(CLR4, "multiplies by %d, ", cheat->mult);
+    if (cheat->set != 0) printfc(CLR4, "sets to %d, ", cheat->set);
+    if (cheat->reverse) printfc(CLR4, "reverses scores, ");
+    if (cheat->invert) printfc(CLR4, "inverts scores, ");
+    if (cheat->reset_both) printfc(CLR4, "resets both scores, ");
+    if (cheat->reset_player) printfc(CLR4, "resets player score, ");
+    if (cheat->reset_opponent) printfc(CLR4, "resets opponent score, ");
+    if (cheat->match_high) printfc(CLR4, "matches high score, ");
+    if (cheat->match_low) printfc(CLR4, "matches low score, ");
+    printfc(CLR1, "\n");
     clr_end();
 }
 //
@@ -274,15 +256,15 @@ void cheats_list_init(struct Cheat *cheats_list) {
 //
 void loot_box(struct State *state, struct Cheat cheats_list[]) {
     clear_screen("Loot Box");
-    printfc(WHITE, "You got a loot box!\n");
+    printfc(CLR1, "You got a loot box!\n");
     int cheat_list_index = rand() % CHEATS_AMT;
     bool rc = state_gain_cheat(state, cheat_list_index);
     if (rc) {
-        printfc(WHITE, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
+        printfc(CLR1, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
         cheat_print(&cheats_list[cheat_list_index]);
     }
     else {
-        printfc(WHITE, "Attempted to gain %s but there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
+        printfc(CLR1, "Attempted to gain %s but there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
     }
     to_continue();
 }
@@ -302,31 +284,31 @@ struct Match {
 };
 void match_print(struct Match *match) {
     print_div();
-    printfc(YELLOW, "player total: %d\n", match->player_total);
+    printfc(CLR5, "player total: %d\n", match->player_total);
     for (int i = 0; i < 21; i++) {
         if (i < match->player_total) {
-            printfc(match->player_total > 21 ? RED : GREEN, "█");
+            printfc(match->player_total > 21 ? CLR2 : CLR4, "█");
         } else {
-            printfc(GREY, "▒");
+            printfc(CLR8, "▒");
         }
     }
     printf("\n");
-    printfc(MAGENTA, "%s total: %d\n", match->opponent_name, match->opponent_total);
+    printfc(CLR7, "%s total: %d\n", match->opponent_name, match->opponent_total);
     for (int i = 0; i < 21; i++) {
         if (i < match->opponent_total) {
-            printfc(match->opponent_total > 21 ? RED : GREEN, "█");
+            printfc(match->opponent_total > 21 ? CLR2 : CLR4, "█");
         } else {
-            printfc(GREY, "▒");
+            printfc(CLR8, "▒");
         }
     }
     printf("\n");
     print_div();
 }
 void match_print_opponent(struct Match *match) {
-    printfc(LIGHTYELLOW, "Opponent: %s\n", match->opponent_name);
-    printfc(YELLOW, "⚄⚀ Die sides: %d\n", match->die_sides);
-    printfc(YELLOW, "㈫ Caution: %d (holds at %d) \n", match->opponent_caution, 21 - match->opponent_caution);
-    printfc(YELLOW, "㊋ Aggressive: %s\n", match->opponent_aggressive ? "yes" : "no");
+    printfc(CLR6, "Opponent: %s\n", match->opponent_name);
+    printfc(CLR5, "⚄⚀ Die sides: %d\n", match->die_sides);
+    printfc(CLR5, "㈫ Caution: %d (holds at %d) \n", match->opponent_caution, 21 - match->opponent_caution);
+    printfc(CLR5, "㊋ Aggressive: %s\n", match->opponent_aggressive ? "yes" : "no");
 }
 void match_start(struct Match *match) {
     match->player_total = 0;
@@ -340,7 +322,7 @@ void match_start(struct Match *match) {
     strcpy(match->opponent_name, "OpponentX");
     opponent_name_rand(match->opponent_name);
     print_div();
-    printfc(RED, "--- Match started ---\n");
+    printfc(CLR2, "--- Match started ---\n");
     match_print_opponent(match);
     print_div();
 }
@@ -350,7 +332,7 @@ struct Match match_new() {
     return match;
 }
 void match_end(struct Match *match, struct State *state, struct Cheat cheats_list[], int won, char msg[64]) { // won = 2 == draw
-    printfc(GREEN, "Match ended\n");
+    printfc(CLR4, "Match ended\n");
     to_continue();
     if (won == 1) {
         state->gold += 1;
@@ -360,11 +342,11 @@ void match_end(struct Match *match, struct State *state, struct Cheat cheats_lis
     }
     clear_screen("Match Summary");
     print_div();
-    enum Color title_color[3] = {LIGHTRED, LIGHTGREEN, LIGHTYELLOW};
+    enum Color title_color[3] = {CLR2, CLR4, CLR5};
     printfc(title_color[won], "%s\n", msg);
     match_print_opponent(match);
     match_print(match);
-    printfc(WHITE, "Gold: %d\n", state->gold);
+    printfc(CLR1, "Gold: %d\n", state->gold);
     to_continue();
     // Get new cheat
     if ( won == 1) {
@@ -413,14 +395,14 @@ int roll_die(int sides) {
 void opponent_turn(struct Match *match) {
     // Greater than caution and (not aggressive or greater than player)
     if (match->opponent_total >= (21 - match->opponent_caution) && (!match->opponent_aggressive || match->opponent_total >= match->player_total)) {
-        printfc(YELLOW, "%s holds\n", match->opponent_name);
+        printfc(CLR5, "%s holds\n", match->opponent_name);
         match->opponent_held = true;
         return;
     }
     int roll = roll_die(match->die_sides);
     match->opponent_total += roll;
     match->opponent_held = false;
-    printfc(GREEN, "%s rolls: %d\n", match->opponent_name, roll);
+    printfc(CLR4, "%s rolls: %d\n", match->opponent_name, roll);
 }
 
 //
@@ -431,88 +413,88 @@ void cmd_roll(struct Match *match) {
     int roll = roll_die(match->die_sides);
     match->player_total += roll;
     match->turn++;
-    printfc(GREEN, "player rolls: %d\n", roll);
+    printfc(CLR4, "player rolls: %d\n", roll);
     opponent_turn(match);
     match->player_held = false;
 }
 void cmd_hold(struct Match *match) {
     clear_screen("Hold");
     match->player_held = true;
-    printfc(YELLOW, "player holds\n");
+    printfc(CLR5, "player holds\n");
     opponent_turn(match);
     match->player_held = true;
 }
 void cmd_cheat_list(struct State *state, struct Cheat cheats_list[]) {
     clear_screen("Cheat Slots");
     for (int i = 0; i < state->cheats_cap; i++) {
-        // if (state->cheats[i] != -1) printfc(WHITE, "%d.%s \n", i, cheats_list[state->cheats[i]].name);
-        printfc(WHITE, "%d. ", i + 1);
+        // if (state->cheats[i] != -1) printfc(CLR1, "%d.%s \n", i, cheats_list[state->cheats[i]].name);
+        printfc(CLR1, "%d. ", i + 1);
         if (state->cheats[i] != -1) {
             cheat_print(&cheats_list[state->cheats[i]]);
         }
         else {
-            printfc(WHITE, "---\n");
+            printfc(CLR1, "---\n");
         }
     }
-    printfc(WHITE, "\n");
+    printfc(CLR1, "\n");
 }
 
 void cmd_use_cheat(struct State *state, struct Match *match, int cheat_index, struct Cheat cheats_list[]) {
     clear_screen("Use Cheat");
-    printfc(WHITE, "Using cheat \n");
+    printfc(CLR1, "Using cheat \n");
     int used_index = state_use_cheat(state, cheat_index);
     if (used_index == -1) {
-        printfc(WHITE, "Invalid cheat\n");
+        printfc(CLR1, "Invalid cheat\n");
         return;
     }
     struct Cheat cheat = cheats_list[used_index];
     cheat_print(&cheat);
     if (cheat.add != 0) {
-        printfc(WHITE, "Adding %d\n", cheat.add);
+        printfc(CLR1, "Adding %d\n", cheat.add);
         match->player_total += cheat.add;
     }
     if (cheat.sub != 0) {
-        printfc(WHITE, "Subtracting %d\n", cheat.sub);
+        printfc(CLR1, "Subtracting %d\n", cheat.sub);
         match->player_total -= cheat.sub;
     }
     if (cheat.div != 0) {
-        printfc(WHITE, "Dividing by %d\n", cheat.div);
+        printfc(CLR1, "Dividing by %d\n", cheat.div);
         match->player_total /= cheat.div;
     }
     if (cheat.mult != 0) {
-        printfc(WHITE, "Multiplying by %d\n", cheat.mult);
+        printfc(CLR1, "Multiplying by %d\n", cheat.mult);
         match->player_total *= cheat.mult;
     }
     if (cheat.set != 0) {
-        printfc(WHITE, "Setting to %d\n", cheat.set);
+        printfc(CLR1, "Setting to %d\n", cheat.set);
         match->player_total = cheat.set;
     }
     if (cheat.reverse) {
-        printfc(WHITE, "Reversing scores\n");
+        printfc(CLR1, "Reversing scores\n");
         int temp = match->player_total;
         match->player_total = match->opponent_total;
         match->opponent_total = temp;
     }
     if (cheat.invert) {
-        printfc(WHITE, "Inverting scores\n");
+        printfc(CLR1, "Inverting scores\n");
         match->player_total = 21 - match->player_total;
         match->opponent_total = 21 - match->opponent_total;
     }
     if (cheat.reset_both) {
-        printfc(WHITE, "Resetting both scores\n");
+        printfc(CLR1, "Resetting both scores\n");
         match->player_total = 0;
         match->opponent_total = 0;
     }
     if (cheat.reset_player) {
-        printfc(WHITE, "Resetting player score\n");
+        printfc(CLR1, "Resetting player score\n");
         match->player_total = 0;
     }
     if (cheat.reset_opponent) {
-        printfc(WHITE, "Resetting opponent score\n");
+        printfc(CLR1, "Resetting opponent score\n");
         match->opponent_total = 0;
     }
     if (cheat.match_high) {
-        printfc(WHITE, "Matching high score\n");
+        printfc(CLR1, "Matching high score\n");
         if (match->player_total > match->opponent_total) {
             match->opponent_total = match->player_total;
         } else {
@@ -520,7 +502,7 @@ void cmd_use_cheat(struct State *state, struct Match *match, int cheat_index, st
         }
     }
     if (cheat.match_low) {
-        printfc(WHITE, "Matching low score\n");
+        printfc(CLR1, "Matching low score\n");
         if (match->player_total < match->opponent_total) {
             match->opponent_total = match->player_total;
         } else {
@@ -530,21 +512,21 @@ void cmd_use_cheat(struct State *state, struct Match *match, int cheat_index, st
 }
 void cmd_help() {
     clear_screen("Help");
-    printfc(WHITE, "Commands:\n");
-    printfc(WHITE, "%c - roll\n", CMD_ROLL);
-    printfc(WHITE, "%c - hold\n", CMD_HOLD);
-    printfc(WHITE, "%c - inspect cheat slots\n", CMD_CHEAT_LIST);
-    printfc(WHITE, "%c - inspect opponent\n", CMD_OPPONENT);
-    printfc(WHITE, "%c - use cheat slot 1\n", CMD_USE_CHEAT_1);
-    printfc(WHITE, "%c - use cheat slot 2\n", CMD_USE_CHEAT_2);
-    printfc(WHITE, "%c - use cheat slot 3\n", CMD_USE_CHEAT_3);
-    printfc(WHITE, "%c - use cheat slot 4\n", CMD_USE_CHEAT_4);
-    printfc(WHITE, "%c - use cheat slot 5\n", CMD_USE_CHEAT_5);
-    printfc(WHITE, "%c - use cheat slot 6\n", CMD_USE_CHEAT_6);
-    printfc(WHITE, "%c - use cheat slot 7\n", CMD_USE_CHEAT_7);
-    printfc(WHITE, "%c - use cheat slot 8\n", CMD_USE_CHEAT_8);
-    printfc(WHITE, "%c - quit\n", CMD_QUIT);
-    printfc(WHITE, "%c - help\n", CMD_HELP);
+    printfc(CLR1, "Commands:\n");
+    printfc(CLR1, "%c - roll\n", CMD_ROLL);
+    printfc(CLR1, "%c - hold\n", CMD_HOLD);
+    printfc(CLR1, "%c - inspect cheat slots\n", CMD_CHEAT_LIST);
+    printfc(CLR1, "%c - inspect opponent\n", CMD_OPPONENT);
+    printfc(CLR1, "%c - use cheat slot 1\n", CMD_USE_CHEAT_1);
+    printfc(CLR1, "%c - use cheat slot 2\n", CMD_USE_CHEAT_2);
+    printfc(CLR1, "%c - use cheat slot 3\n", CMD_USE_CHEAT_3);
+    printfc(CLR1, "%c - use cheat slot 4\n", CMD_USE_CHEAT_4);
+    printfc(CLR1, "%c - use cheat slot 5\n", CMD_USE_CHEAT_5);
+    printfc(CLR1, "%c - use cheat slot 6\n", CMD_USE_CHEAT_6);
+    printfc(CLR1, "%c - use cheat slot 7\n", CMD_USE_CHEAT_7);
+    printfc(CLR1, "%c - use cheat slot 8\n", CMD_USE_CHEAT_8);
+    printfc(CLR1, "%c - quit\n", CMD_QUIT);
+    printfc(CLR1, "%c - help\n", CMD_HELP);
 }
 
 //
@@ -558,7 +540,13 @@ int main() {
     struct State state = state_new();
     // Intro
     clear_screen("ch33ter");
-    printfc(WHITE, "Welcome to ch33ter\n");
+    printfc(CLR1, "Welcome to ch33ter\n");
+    printfc(CLR1, "You will be challenged in a game something like what you might call '21'.\n");
+    printfc(CLR1, "Your opponents will be many. Some will be strong some will be weak.\n");
+    printfc(CLR1, "They will bring their own dice. You must account for that.\n");
+    printfc(CLR1, "The best way to account for that might be cheating...\n");
+    printfc(CLR1, "Good luck!\n");
+    printfc(CLR7, "Press %c to see the help screen now!\n", CMD_HELP);
     to_continue();
     // Setup cheats
     struct Cheat cheats_list[32];
@@ -573,14 +561,14 @@ int main() {
         print_div();
         char input;
         if (USE_RAW_INPUT) {
-            printfc(LIGHTBLUE, ">> ");
+            printfc(CLR3, ">> ");
             system("stty raw");
             input = getchar();
             system("stty cooked");
             clear_screen("ch33ter");   
         }
         else {
-            printfc(LIGHTBLUE, ">> ");
+            printfc(CLR3, ">> ");
             scanf("%c", &input);
             // clear the buffer
             while(getchar() != '\n');
@@ -632,12 +620,12 @@ int main() {
                 run = 0;
                 break;
             default:
-                printfc(WHITE, "Invalid input\n");
+                printfc(CLR1, "Invalid input\n");
         }
         if (show_match) match_print(&match);
         // Check for match end
         match_check(&match, &state, cheats_list);
     }
-    printfc(WHITE, "goodbye\n");
+    printfc(CLR1, "goodbye\n");
     return 0;
 }
