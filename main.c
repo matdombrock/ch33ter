@@ -124,19 +124,20 @@ void print_screen_title(char title[64]) {
     }
     printfc(WHITE, "\n\n");
 }
-void clear_screen() {
-    // C;ear screen
+void clear_screen(char title[64]) {
+    // Clear screen
     #ifdef _WIN32
         system("cls");
     #else
         system("clear");
     #endif
+    print_screen_title(title);
 }
 void to_continue() {
     // Wait for user input
     printfc(RED, "\n\n-- Enter 'k' to continue --\n");
     getchar();
-    clear_screen();
+    clear_screen("ch33ter");
     // clear the buffer
     while(getchar() != '\n');
 }
@@ -304,24 +305,26 @@ void match_print(struct Match *match) {
     print_div();
 }
 void match_print_opponent(struct Match *match) {
-    printfc(WHITE, "Opponent: %s\n", match->opponent_name);
-    printfc(WHITE, "⚠ Caution: %d (holds at %d) \n", match->opponent_caution, 21 - match->opponent_caution);
-    printfc(WHITE, "⚠ Aggressive: %d\n", match->opponent_aggressive);
+    printfc(LIGHTYELLOW, "Opponent: %s\n", match->opponent_name);
+    printfc(YELLOW, "⚄⚀ Die sides: %d\n", match->die_sides);
+    printfc(YELLOW, "㈫ Caution: %d (holds at %d) \n", match->opponent_caution, 21 - match->opponent_caution);
+    printfc(YELLOW, "㊋ Aggressive: %s\n", match->opponent_aggressive ? "yes" : "no");
 }
 void match_start(struct Match *match) {
     match->player_total = 0;
     match->opponent_total = 0;
     match->opponent_caution = rand() % 11;
     match->turn = 0;
-    match->die_sides = 10;
+    match->die_sides = rand() % 17 + 3;
     match->player_held = false;
     match->opponent_held = false;
     match->opponent_aggressive = rand() % 2;
     strcpy(match->opponent_name, "OpponentX");
     opponent_name_rand(match->opponent_name);
     print_div();
-    printfc(WHITE, "Match started...\n");
+    printfc(RED, "--- Match started ---\n");
     match_print_opponent(match);
+    print_div();
 }
 struct Match match_new() {
     struct Match match;
@@ -337,8 +340,7 @@ void match_end(struct Match *match, struct State *state, struct Cheat cheats_lis
     if (won == 0) {
         state->gold -= 1;
     }
-    clear_screen();
-    print_screen_title("Match Summary");
+    clear_screen("Match Summary");
     print_div();
     enum Color title_color[3] = {LIGHTRED, LIGHTGREEN, LIGHTYELLOW};
     printfc(title_color[won], "%s\n", msg);
@@ -401,6 +403,19 @@ void match_check(struct Match *match, struct State *state, struct Cheat cheats_l
 int roll_die(int sides) {
     return rand() % sides + 1;
 }
+void loot_box(struct State *state, struct Cheat cheats_list[]) {
+    clear_screen("Loot Box");
+    int cheat_list_index = rand() % CHEATS_AMT;
+    bool rc = state_gain_cheat(state, cheat_list_index);
+    if (rc) {
+        printfc(WHITE, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
+        cheat_print(&cheats_list[cheat_list_index]);
+    }
+    else {
+        printfc(WHITE, "Attempted to gain %s but there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
+    }
+    to_continue();
+}
 void opponent_turn(struct Match *match) {
     // Greater than caution and (not aggressive or greater than player)
     if (match->opponent_total >= (21 - match->opponent_caution) && (!match->opponent_aggressive || match->opponent_total >= match->player_total)) {
@@ -418,7 +433,7 @@ void opponent_turn(struct Match *match) {
 // Commands
 //
 void cmd_roll(struct Match *match) {
-    print_screen_title("Roll");
+    clear_screen("Roll");
     int roll = roll_die(match->die_sides);
     match->player_total += roll;
     match->turn++;
@@ -427,14 +442,14 @@ void cmd_roll(struct Match *match) {
     match->player_held = false;
 }
 void cmd_hold(struct Match *match) {
-    print_screen_title("Hold");
+    clear_screen("Hold");
     match->player_held = true;
     printfc(YELLOW, "player holds\n");
     opponent_turn(match);
     match->player_held = true;
 }
 void cmd_cheat_list(struct State *state, struct Cheat cheats_list[]) {
-    print_screen_title("Cheat Slots");
+    clear_screen("Cheat Slots");
     for (int i = 0; i < state->cheats_cap; i++) {
         // if (state->cheats[i] != -1) printfc(WHITE, "%d.%s \n", i, cheats_list[state->cheats[i]].name);
         printfc(WHITE, "%d. ", i + 1);
@@ -449,7 +464,7 @@ void cmd_cheat_list(struct State *state, struct Cheat cheats_list[]) {
 }
 
 void cmd_use_cheat(struct State *state, struct Match *match, int cheat_index, struct Cheat cheats_list[]) {
-    print_screen_title("Use Cheat");
+    clear_screen("Use Cheat");
     printfc(WHITE, "Using cheat \n");
     int used_index = state_use_cheat(state, cheat_index);
     if (used_index == -1) {
@@ -520,7 +535,7 @@ void cmd_use_cheat(struct State *state, struct Match *match, int cheat_index, st
     }
 }
 void cmd_help() {
-    print_screen_title("Help");
+    clear_screen("Help");
     printfc(WHITE, "Commands:\n");
     printfc(WHITE, "%c - roll\n", CMD_ROLL);
     printfc(WHITE, "%c - hold\n", CMD_HOLD);
@@ -542,25 +557,33 @@ void cmd_help() {
 // Main
 //
 int main() {
+    // Setup RNG
     int seed = time(NULL);
     srand(seed);
-    clear_screen();
-    print_screen_title("21");
+    // Setup basic game state
     struct State state = state_new();
-    struct Match match = match_new();
+    // Intro
+    clear_screen("ch33ter");
+    printfc(WHITE, "Welcome to ch33ter\n");
+    to_continue();
+    // Setup cheats
     struct Cheat cheats_list[32];
     cheats_list_init(cheats_list);
-    state_gain_cheat(&state, 0);
-    state_gain_cheat(&state, 1);
+    // Gain some cheats
+    loot_box(&state, cheats_list);
+    // Start first match
+    clear_screen("ch33ter");
+    struct Match match = match_new();
     int run = 1;
     while(run) {
         char input;
-        printfc(WHITE, ">> ");
+        print_div();
+        printfc(LIGHTBLUE, ">> ");
         scanf("%c", &input);
         // printfc(WHITE, "cheat %s", cheats[0].name);
         // clear the buffer
         while(getchar() != '\n');
-        clear_screen();
+        clear_screen("ch33ter");
         switch (input) {
             case CMD_USE_CHEAT_1:
                 cmd_use_cheat(&state, &match, 0, cheats_list);
