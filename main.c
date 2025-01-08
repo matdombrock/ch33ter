@@ -41,6 +41,8 @@
 #define CLR7_CLR "\033[1;96m" // cyan
 #define CLR8_CLR "\033[1;97m" // white
 
+#define STARTING_GOLD 100
+
 //
 // Utils
 //
@@ -117,6 +119,25 @@ void clear_screen(char title[]) {
     #endif
     print_screen_title(title);
 }
+// Input
+char get_input() {
+    char input;
+    if (USE_RAW_INPUT) {
+        printfc(CLR7, "██████████████▛ Awaiting Input ▜▛ ");
+        system("stty raw");
+        input = getchar();
+        system("stty cooked");
+        clear_screen("ch33ter");   
+    }
+    else {
+        printfc(CLR7, "██████████████▛ Awaiting Input ▜▛ ");
+        scanf("%c", &input);
+        // clear the buffer
+        while(getchar() != '\n');
+        clear_screen("ch33ter");
+    }
+    return input;
+}
 void to_continue() {
     // Wait for user input
     printfc(CLR6, "\n\n██████████████       Press any key to continue       ██████████████\n");
@@ -145,7 +166,7 @@ struct Cheat {
     int div;
     int mult;
     int set;
-    bool reverse;
+    bool swap;
     bool invert;
     bool reset;
     bool match_high;
@@ -160,7 +181,7 @@ struct Cheat cheat_new(char name[32]) {
     cheat.div = 0;
     cheat.mult = 0;
     cheat.set = 0;
-    cheat.reverse = 0;
+    cheat.swap = 0;
     cheat.invert = 0;
     cheat.reset = 0;
     cheat.match_high = 0;
@@ -171,7 +192,7 @@ struct Cheat cheat_new(char name[32]) {
 void cheat_sync(struct Cheat *cheat) {
     if (cheat->match_high 
         || cheat->match_low 
-        || cheat->reverse) 
+        || cheat->swap) 
     { cheat->affects = 2; }
 }
 void cheat_print(struct Cheat *cheat) {
@@ -184,7 +205,7 @@ void cheat_print(struct Cheat *cheat) {
     if (cheat->div != 0) printfc(CLR4, "| /%d ", cheat->div);
     if (cheat->mult != 0) printfc(CLR4, "| *%d ", cheat->mult);
     if (cheat->set != 0) printfc(CLR4, "| =%d ", cheat->set);
-    if (cheat->reverse) printfc(CLR4, "| rev ");
+    if (cheat->swap) printfc(CLR4, "| swp ");
     if (cheat->invert) printfc(CLR4, "| inv ");
     if (cheat->reset) printfc(CLR4, "| rst");
     if (cheat->match_high) printfc(CLR4, "| =H ");
@@ -202,7 +223,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     // Add
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
-        sprintf(name, "sh4rdx%d", i);
+        sprintf(name, "sh4rdx%c", i);
         cheats_list[off] = cheat_new(name);
         cheats_list[off].add = i + 1;
         cheat_sync(&cheats_list[off]);
@@ -334,10 +355,10 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheat_sync(&cheats_list[off]);
         off++;
     }
-    // Reverse
+    // Swap
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_new("r3vux");
-        cheats_list[off].reverse = i;
+        cheats_list[off] = cheat_new("5w4px");
+        cheats_list[off].swap = i;
         cheat_sync(&cheats_list[off]);
         off++;
     }
@@ -400,7 +421,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     // for (int i = 0; i < off; i++) {
     //     cheat_print(&cheats_list[i]);
     // }
-    // to_continue();
+    // exit(0);
 }
 
 //
@@ -417,7 +438,7 @@ struct State {
 };
 struct State state_new() {
     struct State state;
-    state.gold = 1;
+    state.gold = STARTING_GOLD;
     state.cheats_cap = 4;
     state.wins = 0;
     state.losses = 0;
@@ -428,6 +449,7 @@ struct State state_new() {
     }
     return state;
 }
+// TODO: Ever used on own?
 bool state_gain_cheat(struct State* state, int cheat_list_index) {
     bool gained = false;
     for (int i = 0; i < state->cheats_cap; i++) {
@@ -439,12 +461,26 @@ bool state_gain_cheat(struct State* state, int cheat_list_index) {
     }
     return gained;
 }
+// Wrapper for state_gain_cheat that prints a message
+bool state_attempt_gain_cheat(struct State* state, struct Cheat cheats_list[], int cheat_list_index) {
+    bool rc = state_gain_cheat(state, cheat_list_index);
+    if (rc) printfc(CLR1, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
+    else printfc(CLR2, "Attempted to gain %s\nbut there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
+    return rc;
+}
 int state_use_cheat(struct State* state, int cheat_index) {
     if (cheat_index >= state->cheats_cap) return -1;
     int at = state->cheats[cheat_index];
     if (at == -1) return -1;
     state->cheats[cheat_index] = -1;
     return at;
+}
+int state_count_cheats(struct State *state) {
+    int count = 0;
+    for (int i = 0; i < MAX_CHEATS; i++) {
+        if (state->cheats[i] != -1) count++;
+    }
+    return count;
 }
 void state_print_cheats(struct State *state, struct Cheat cheats_list[]) {
     for (int i = 0; i < state->cheats_cap; i++) {
@@ -459,15 +495,29 @@ void state_print_cheats(struct State *state, struct Cheat cheats_list[]) {
     }
     printfc(CLR1, "\n");
 }
+// Simple prints ensure color
+void state_print_gold(struct State *state) {
+    printfc(CLR4, "Gold: %d\n", state->gold);
+}
+void state_print_scanner_lvl(struct State *state) {
+    printfc(CLR3, "Scanner LVL: %d/%d\n", state->scanner_lvl, SCAN_LVL_MAX);
+}
+void state_print_cheats_cap(struct State *state) {
+    printfc(CLR5, "Cheat Slots: %d/%d\n", state->cheats_cap, MAX_CHEATS);
+}
+void state_print_open_cheat_slots(struct State *state) {
+    printfc(CLR5, "Open Cheat Slots: %d\n", state->cheats_cap - state_count_cheats(state));
+}
 void state_print_status(struct State *state, bool trunc) {
     printfc(CLR3, "W: %d", state->wins);
     printfc(CLR2, " L: %d", state->losses);
     printfc(CLR4, " D: %d", state->draws);
     printfc(CLR8, " T: %d\n", state->wins + state->losses + state->draws);
-    printfc(CLR5, "Gold: %d\n", state->gold);
+    state_print_gold(state);
     if (trunc) return;
-    printfc(CLR1, "Cheat Slots: %d/%d\n", state->cheats_cap, MAX_CHEATS);
-    printfc(CLR1, "Scanner LVL: %d/%d\n", state->scanner_lvl, SCAN_LVL_MAX);
+    state_print_cheats_cap(state);
+    state_print_open_cheat_slots(state);
+    state_print_scanner_lvl(state);
 }
 
 //
@@ -477,9 +527,7 @@ void loot_box(struct State *state, struct Cheat cheats_list[]) {
     clear_screen("Loot Box");
     printfc(CLR3, "You got a loot box!\n");
     int cheat_list_index = rand() % CHEATS_AMT;
-    bool rc = state_gain_cheat(state, cheat_list_index);
-    if (rc) printfc(CLR1, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
-    else printfc(CLR2, "Attempted to gain %s\nbut there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
+    state_attempt_gain_cheat(state, cheats_list, cheat_list_index);
     cheat_print(&cheats_list[cheat_list_index]);
     print_div();
     printfc(CLR1, "\n");
@@ -531,7 +579,7 @@ void match_print_opponent(struct State *state, struct Match *match) {
         printfc(CLR5, "㊋ Aggressive: %s\n", match->opponent_aggressive ? "yes" : "no");
         printfc(CLR5, "㈫ Caution: %d (holds at %d) \n", match->opponent_caution, GOAL_NUM - match->opponent_caution);
     }
-    printfc(CLR3, "Scanner LVL: %d\n", state->scanner_lvl);
+    printfc(CLR3, "Scanned with: Scanner LVL%d\n", state->scanner_lvl);
 }
 void match_print(struct Match *match) {
     print_div();
@@ -664,16 +712,201 @@ void opponent_turn(struct Match *match) {
     match->opponent_held = false;
     printfc(CLR4, "%s rolls: %d / %d\n", match->opponent_name, roll, match->die_sides);
 }
+#define MAX_PRICE 33
+void vendor_purchase(struct State *state, struct Cheat cheats_list[], int *cheat_index, int *cheat_price) {
+    clear_screen("Purchasing");
+    printfc(CLR4, "You ask to purchase %s\n", cheats_list[cheat_index[0]].name);
+    if (state_count_cheats(state) >= state->cheats_cap) {
+        printfc(CLR2, "But you have no more cheat slots available!\n");
+    }
+    else if (state->gold >= cheat_price[0]) {
+        state->gold -= cheat_price[0];
+        state_attempt_gain_cheat(state, cheats_list, cheat_index[0]);
+        cheat_index[0] = rand() % CHEATS_AMT;
+        cheat_index[0] = rand() % MAX_PRICE + 1;
+    }
+    else {
+        printfc(CLR2, "But you dont have enough gold! (missing: %d)\n", cheat_price[0] - state->gold);
+    }
+    cheat_print(&cheats_list[cheat_index[0]]);
+    print_div();
+    state_print_cheats(state, cheats_list);
+    state_print_gold(state);
+    to_continue();
+}
+void coin_flip(int amt, struct State *state) {
+    clear_screen("Coin Flip");
+    printfc(CLR4, "You ask to flip a coin\n");
+    if (state->gold >= amt) {
+        int flip = rand() % 2;
+        if (flip == 0) {
+            printfc(CLR2, "You lost %d gold!\n", amt);
+            state->gold -= amt;
+        }
+        else {
+            printfc(CLR4, "You gained %d gold!\n", amt);
+            state->gold += amt;
+        }
+    }
+    else {
+        printfc(CLR2, "But you dont have enough gold to wager! (missing: %d)\n", amt - state->gold);
+    }
+    state_print_gold(state);
+    to_continue();
+}
 void random_encounters(struct State *state, struct Cheat cheats_list[]) {
     if (rand() % 3 == 0) {
-        print_subtitle(CLR3, "Encounter: extra loot box!");
-        printfc(CLR1, "After the last match you found\nan extra loot box in the dust!\n");
+        print_subtitle(CLR3, "Encounter: lost loot box!");
+        printfc(CLR1, "After the last match you found\nan lost loot box in the dust!\n");
         to_continue();
         loot_box(state, cheats_list);
     }
-    if (rand() % 5 == 0) {
-        print_subtitle(CLR3, "Encounter: hacker!");
+    if (rand() % 1 == 0) {
+        print_subtitle(CLR3, "Encounter: hacker vendor!");
         printfc(CLR1, "After the last match you come across\na hacker who is willing to trade cheats for gold!\n");
+        to_continue();
+        int cheat_index[4];
+        cheat_index[0] = rand() % CHEATS_AMT;
+        cheat_index[1] = rand() % CHEATS_AMT;
+        cheat_index[2] = rand() % CHEATS_AMT;
+        cheat_index[3] = rand() % CHEATS_AMT;
+        int cheat_price[4];
+        cheat_price[0] = rand() % MAX_PRICE + 1;
+        cheat_price[1] = rand() % MAX_PRICE + 1;
+        cheat_price[2] = rand() % MAX_PRICE + 1;
+        cheat_price[3] = rand() % MAX_PRICE + 1;
+        bool in_shop = 1;
+        while(in_shop) {
+            clear_screen("Hacker Vendor");
+            state_print_gold(state);
+            state_print_open_cheat_slots(state);
+            printfc(CLR1, "-------\n");
+            printfc(CLR1, "Goods: \n");
+            printfc(CLR1, "1. $%d - ", cheat_price[0]);
+            cheat_print(&cheats_list[cheat_index[0]]);
+            printfc(CLR1, "2. $%d - ", cheat_price[1]);
+            cheat_print(&cheats_list[cheat_index[1]]);
+            printfc(CLR1, "3. $%d - ", cheat_price[2]);
+            cheat_print(&cheats_list[cheat_index[2]]);
+            printfc(CLR1, "4. $%d - ", cheat_price[3]);
+            cheat_print(&cheats_list[cheat_index[3]]);
+            printfc(CLR1, "5. $2 - loot box\n");
+            printfc(CLR1, "6. $10 - Upgrade scanner\n");
+            printfc(CLR1, "7. $15 - Upgrade cheat slots\n");
+            printfc(CLR1, "8. $1 - Coin flip\n");
+            printfc(CLR1, "9. $10 - Coin flip\n");
+            printfc(CLR1, "0. Sell Cheats\n");
+            printfc(CLR2, "Press %c to exit\n", CMD_QUIT);
+            char input = get_input();
+            printfc(CLR1, "%c\n", input);
+            switch(input) {
+                case CMD_QUIT:
+                    in_shop = 0;
+                    break;
+                case '1':
+                    vendor_purchase(state, cheats_list, &cheat_index[0], &cheat_price[0]);
+                    break;
+                case '2':
+                    vendor_purchase(state, cheats_list, &cheat_index[1], &cheat_price[1]);
+                    break;
+                case '3':
+                    vendor_purchase(state, cheats_list, &cheat_index[2], &cheat_price[2]);
+                    break;
+                case '4':
+                    vendor_purchase(state, cheats_list, &cheat_index[3], &cheat_price[3]);
+                    break;
+                case '5':
+                    clear_screen("Purchase");
+                    printfc(CLR4, "You ask to purchase a loot box\n");
+                    if (state->gold >= 2) {
+                        state->gold -= 2;
+                        loot_box(state, cheats_list);
+                    }
+                    else {
+                        printfc(CLR2, "But you dont have enough gold! (missing: %d)\n", 2 - state->gold);
+                    }
+                    print_div();
+                    state_print_cheats(state, cheats_list);
+                    state_print_gold(state);
+                    to_continue();
+                    break;
+                case '6':
+                    clear_screen("Scanner Upgrade");
+                    printfc(CLR4, "You ask to upgrade your scanner\n");
+                    if (state->scanner_lvl >= SCAN_LVL_MAX) {
+                        printfc(CLR2, "But your scanner is already at max level!\n");
+                    }
+                    else if (state->gold >= 10) {
+                        state->gold -= 10;
+                        state->scanner_lvl++;
+                        printfc(CLR8, "Scanner upgraded!");
+                    }
+                    else {
+                        printfc(CLR2, "But you dont have enough gold! (missing: %d)\n", 10 - state->gold);
+                    }
+                    state_print_scanner_lvl(state);
+                    state_print_gold(state);
+                    to_continue();
+                    break;
+                case '7':
+                    clear_screen("Cheat Slot Upgrade");
+                    printfc(CLR4, "You ask to upgrade your cheat slots\n");
+                    if (state->cheats_cap >= MAX_CHEATS) {
+                        printfc(CLR2, "But your cheat slots are already at max level!\n");
+                    }
+                    else if (state->gold >= 15) {
+                        state->gold -= 15;
+                        state->cheats_cap++;
+                        printfc(CLR8, "Cheat slots upgraded!");
+                    }
+                    else {
+                        printfc(CLR2, "But you dont have enough gold! (missing: %d)\n", 15 - state->gold);
+                    }
+                    state_print_cheats_cap(state);
+                    state_print_gold(state);
+                    to_continue();
+                    break;
+                case '8':
+                    coin_flip(1, state);
+                    break;
+                case '9':
+                    coin_flip(10, state);
+                    break;
+                case '0':
+                    clear_screen("Selling");
+                    printfc(CLR4, "You ask to sell cheats\n");
+                    state_print_cheats(state, cheats_list);
+                    printfc(CLR4, "Which cheat would you like to sell?\n");
+                    char slotc = get_input();
+                    clear_screen("Selling");
+                    int slot = slotc - '0';// offset by ascii
+                    int price = rand() % (MAX_PRICE / 2) + 1;
+                    if (slot >= 0 && slot < state->cheats_cap) {
+                        if (state->cheats[slot - 1] != -1) {
+                            printfc(CLR4, "You sold: ");
+                            cheat_print(&cheats_list[state->cheats[slot]]);
+                            printfc(CLR4, "For %d gold!\n", price);
+                            state->gold += price;
+                            state->cheats[slot - 1] = -1;
+                        }
+                        else {
+                            printfc(CLR2, "But there is no cheat in that slot!\n");
+                        }
+                    }
+                    else {
+                        printfc(CLR2, "Invalid input\n");
+                    }
+                    state_print_gold(state);
+                    to_continue();
+                    break;
+                default:
+                    clear_screen("Invalid Input");
+                    printfc(CLR2, "Input not recognized\n");
+                    printfc(CLR3, "Press %c at vendor screen to quit\n", CMD_QUIT);
+                    to_continue();
+                    break;
+            }
+        }
         to_continue();
     }
     if (rand() % 5 == 0) {
@@ -842,8 +1075,8 @@ void cmd_use_cheat(struct State *state, struct Match *match, int cheat_index, st
         if (affects_player) match->player_total = cheat.set;
         if (affects_opponent) match->opponent_total = cheat.set;
     }
-    if (cheat.reverse) {
-        printfc(CLR1, "Reversing scores\n");
+    if (cheat.swap) {
+        printfc(CLR1, "Swapping scores\n");
         int temp = match->player_total;
         match->player_total = match->opponent_total;
         match->opponent_total = temp;
@@ -932,12 +1165,12 @@ void cmd_help() {
     printfc(CLR5, "plr=player opn=opponent bth=both\n");
     printfc(CLR4, "[properties] - what the cheat does\n");
     printfc(CLR5, "+N adds | -N subtracts | /N divides | *N multiplies | =N sets\n");
-    printfc(CLR5, "rev reverses | inv inverts | rst resets\n");
+    printfc(CLR5, "swp swaps | inv inverts | rst resets\n");
     printfc(CLR1, "-------\n");
     printfc(CLR3, "[example ");
     printfc(CLR5, "| both ");
-    printfc(CLR4, "| +1 | rev \n");
-    printfc(CLR1, "This cheat would add 1 to both scores and then reverse them\n");
+    printfc(CLR4, "| +1 | swp \n");
+    printfc(CLR1, "This cheat would add 1 to both scores and then swap them\n");
     to_continue();
     clear_screen("Help p4");
     print_subtitle(CLR3, "Page 4/4 - Tips:"); 
@@ -950,7 +1183,7 @@ void cmd_help() {
     printfc(CLR1, "- Win +1 gold | Slam it +2 gold\n");
     printfc(CLR1, "- Lose -1 gold | Bust -2 gold \n");
     printfc(CLR1, "- 'inv' subtracts the current score from %d\n", GOAL_NUM);
-    printfc(CLR1, "- 'rev' swaps the scores (always affects both)\n");
+    printfc(CLR1, "- 'swp' swaps the scores (always affects both)\n");
     printfc(CLR1, "- 'rst' sets the score to 0\n");
     to_continue();
 }
@@ -981,21 +1214,7 @@ int main() {
     int run = 1;
     while(run) {
         print_div();
-        char input;
-        if (USE_RAW_INPUT) {
-            printfc(CLR7, "██████████████▛ Awaiting Input ▜▛ ");
-            system("stty raw");
-            input = getchar();
-            system("stty cooked");
-            clear_screen("ch33ter");   
-        }
-        else {
-            printfc(CLR3, ">> ");
-            scanf("%c", &input);
-            // clear the buffer
-            while(getchar() != '\n');
-            clear_screen("ch33ter");
-        }
+        char input = get_input();
         switch (input) {
             case CMD_USE_CHEAT_1:
                 cmd_use_cheat(&state, &match, 0, cheats_list);
@@ -1043,11 +1262,12 @@ int main() {
                 run = 0;
                 break;
             default:
-                printfc(CLR1, "Invalid input\n");
+                printfc(CLR2, "Invalid input\n");
+                printfc(CLR3, "Press %c for help\n", CMD_HELP);
         }
         // Show match info
         match_print(&match);
-        printfc(CLR1, "Gold: %d\n", state.gold);
+        state_print_gold(&state);
         // Check for match end
         match_check(&match, &state, cheats_list);
         if (state.gold < 0) {
