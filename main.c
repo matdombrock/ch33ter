@@ -222,144 +222,224 @@ void cheat_print(struct Cheat *cheat) {
 //
 // Cheats list
 //
-#define CHEATS_AMT_CHAOS 4
-#define CHEATS_AMT_DAGGERS 4
-#define CHEATS_AMT_SHARDS 4
-#define CHEATS_AMT_BOMBS 4
-#define CHEATS_AMT_KINGS 4
-#define CHEATS_AMT 33 + CHEATS_AMT_CHAOS + CHEATS_AMT_DAGGERS + CHEATS_AMT_SHARDS + CHEATS_AMT_BOMBS + CHEATS_AMT_KINGS
+#define CHEATS_AMT (30 * GOAL_NUM)
 void cheats_list_init(struct Cheat *cheats_list) {
-    cheats_list[0] = cheat_new("ace");
-    cheats_list[0].add = 1;
-    cheats_list[1] = cheat_new("jack");
-    cheats_list[1].add = 2;
-    cheats_list[2] = cheat_new("queen");
-    cheats_list[2].add = 4;
-    cheats_list[3] = cheat_new("king");
-    cheats_list[3].add = 8;
-    cheats_list[4] = cheat_new("joker");
-    cheats_list[4].affects = 2;
-    cheats_list[4].reset = 1;
-    cheats_list[5] = cheat_new("wild");
-    cheats_list[5].affects = 2;
-    cheats_list[5].invert = 1;
-    cheats_list[6] = cheat_new("rebel");
-    cheats_list[6].reverse = 1;
-    cheats_list[7] = cheat_new("worker");
-    cheats_list[7].match_high = 1;
-    cheats_list[8] = cheat_new("kingpin");
-    cheats_list[8].match_low = 1;
-    cheats_list[9] = cheat_new("calamity");
-    cheats_list[9].div = 2;
-    cheats_list[9].affects = 2;
-    cheats_list[10] = cheat_new("catastrophe");
-    cheats_list[10].div = 4;
-    cheats_list[10].affects = 2;
-    cheats_list[11] = cheat_new("lucky");
-    cheats_list[11].set = 7;
-    cheats_list[12] = cheat_new("unlucky");
-    cheats_list[12].set = GOAL_NUM + 1;
-    cheats_list[13] = cheat_new("bfg");
-    cheats_list[13].set = GOAL_NUM;
-    cheats_list[14] = cheat_new("sniper");
-    cheats_list[14].set = GOAL_NUM - 1;
-    cheats_list[15] = cheat_new("scattergun");
-    cheats_list[15].set = GOAL_NUM - 7;
-    cheats_list[16] = cheat_new("warlock");
-    cheats_list[16].mult = 2;
-    cheats_list[16].affects = 2;
-    cheats_list[17] = cheat_new("wizard");
-    cheats_list[17].mult = 4;
-    cheats_list[18] = cheat_new("sorcerer");
-    cheats_list[18].mult = 8;
-    cheats_list[19] = cheat_new("saint");
-    cheats_list[19].set = GOAL_NUM - 1;
-    cheats_list[19].affects = 2;
-    cheats_list[20] = cheat_new("sinner");
-    cheats_list[20].set = 1;
-    cheats_list[20].reverse = 1;
-    cheats_list[21] = cheat_new("savior");
-    cheats_list[21].affects = 2;
-    cheats_list[21].set = GOAL_NUM - 1;
-    cheats_list[22] = cheat_new("slammer");
-    cheats_list[22].affects = 1;
-    cheats_list[22].set = 1;
-    cheats_list[23] = cheat_new("a-bomb");
-    cheats_list[23].affects = 2;
-    cheats_list[23].reset = 1;
-    cheats_list[24] = cheat_new("bomber");
-    cheats_list[24].affects = 2;
-    cheats_list[24].set = 7;
-    cheats_list[25] = cheat_new("c4");
-    cheats_list[25].affects = 2;
-    cheats_list[25].set = 14;
-    cheats_list[26] = cheat_new("dynamite");
-    cheats_list[26].affects = 2;
-    cheats_list[26].set = 21;
-    cheats_list[27] = cheat_new("glass-dagger");
-    cheats_list[27].affects = 1;
-    cheats_list[27].sub = 1;
-    cheats_list[28] = cheat_new("buffer-knife");
-    cheats_list[28].affects = 1;
-    cheats_list[28].sub = 7;
-    cheats_list[29] = cheat_new("short-sword");
-    cheats_list[29].affects = 1;
-    cheats_list[29].sub = 14;
-    cheats_list[30] = cheat_new("my-axe");
-    cheats_list[30].affects = 1;
-    cheats_list[30].sub = 21;
-    cheats_list[31] = cheat_new("ban-hammer");
-    cheats_list[31].affects = 1;
-    cheats_list[31].sub = 28;
-    cheats_list[32] = cheat_new("falcon");
-    cheats_list[32].affects = 1;
-    cheats_list[32].invert = 1;
-    int offset = 33;
-    for (int i = 0; i < CHEATS_AMT_CHAOS; i++) {
-        char cheat_name[32];
-        snprintf(cheat_name, sizeof(cheat_name), "chaosX%d", i);
-        cheats_list[offset + i] = cheat_new(cheat_name);
-        cheats_list[offset + i].affects = rand() % 3;
-        cheats_list[offset + i].add = rand() % GOAL_NUM;
-        cheats_list[offset + i].div = rand() % GOAL_NUM;
-        cheats_list[offset + i].set = rand() % GOAL_NUM;
-        cheats_list[offset + i].reverse = rand() % 2;
-        cheats_list[offset + i].invert = rand() % 2;
-        cheats_list[offset + i].reset = rand() % 2;
-        cheats_list[offset + i].match_low = rand() % 2;
+    int off = 0;
+    // Add
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "shardx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].add = i + 1;
+        off++;
     }
-    offset += CHEATS_AMT_CHAOS;
-    for (int i = 0; i < CHEATS_AMT_DAGGERS; i++) {
-        char cheat_name[32];
-        snprintf(cheat_name, sizeof(cheat_name), "daggerX%d", i);
-        cheats_list[offset + i] = cheat_new(cheat_name);
-        cheats_list[offset + i].affects = rand() % 3;
-        cheats_list[offset + i].sub = rand() % GOAL_NUM;
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "moverx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].add = i + 1;
+        cheats_list[off].affects = 2;
+        off++;
     }
-    offset += CHEATS_AMT_DAGGERS;
-    for (int i = 0; i < CHEATS_AMT_SHARDS; i++) {
-        char cheat_name[32];
-        snprintf(cheat_name, sizeof(cheat_name), "shardX%d", i);
-        cheats_list[offset + i] = cheat_new(cheat_name);
-        cheats_list[offset + i].affects = rand() % 3;
-        cheats_list[offset + i].add = rand() % GOAL_NUM;
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "pusherx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].add = i + 1;
+        cheats_list[off].affects = 1;
+        off++;
     }
-    offset += CHEATS_AMT_SHARDS;
-    for (int i = 0; i < CHEATS_AMT_BOMBS; i++) {
-        char cheat_name[32];
-        snprintf(cheat_name, sizeof(cheat_name), "bombX%d", i);
-        cheats_list[offset + i] = cheat_new(cheat_name);
-        cheats_list[offset + i].affects = rand() % 3;
-        cheats_list[offset + i].mult = rand() % (GOAL_NUM / 4);
+    // Sub
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "medx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].sub = i + 1;
+        off++;
     }
-    offset += CHEATS_AMT_BOMBS;
-    for (int i = 0; i < CHEATS_AMT_KINGS; i++) {
-        char cheat_name[32];
-        snprintf(cheat_name, sizeof(cheat_name), "kingX%d", i);
-        cheats_list[offset + i] = cheat_new(cheat_name);
-        cheats_list[offset + i].affects = rand() % 3;
-        cheats_list[offset + i].div = rand() % (GOAL_NUM / 4);
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "daggerx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].sub = i + 1;
+        cheats_list[off].affects = 1;
+        off++;
     }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "diggerx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].sub = i + 1;
+        cheats_list[off].affects = 2;
+        off++;
+    }
+    // Mult
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "windfallx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].mult = i + 1;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "bombx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].mult = i + 1;
+        cheats_list[off].affects = 1;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "firestormx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].mult = i + 1;
+        cheats_list[off].affects = 2;
+        off++;
+    }
+    // Div
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "forgex%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].div = i + 1;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "failx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].div = i + 1;
+        cheats_list[off].affects = 1;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "angelx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].div = i + 1;
+        cheats_list[off].affects = 2;
+        off++;
+    }
+    // Set
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "loaderx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].set = i + 1;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "throwerx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].set = i + 1;
+        cheats_list[off].affects = 1;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        char name[32];
+        sprintf(name, "giverx%d", i);
+        cheats_list[off] = cheat_new(name);
+        cheats_list[off].set = i + 1;
+        cheats_list[off].affects = 2;
+        off++;
+    }
+    // Reverse
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("revme");
+        cheats_list[off].reverse = i;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("revu");
+        cheats_list[off].reverse = i;
+        cheats_list[off].affects = 1;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("revus");
+        cheats_list[off].reverse = i;
+        cheats_list[off].affects = 2;
+        off++;
+    }
+    // Invert
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("inme");
+        cheats_list[off].invert = i;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("inu");
+        cheats_list[off].invert = i;
+        cheats_list[off].affects = 1;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("inus");
+        cheats_list[off].invert = i;
+        cheats_list[off].affects = 2;
+        off++;
+    }
+    // Reset
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("rstme");
+        cheats_list[off].reset = i;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("rstu");
+        cheats_list[off].reset = i;
+        cheats_list[off].affects = 1;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("rstus");
+        cheats_list[off].reset = i;
+        cheats_list[off].affects = 2;
+        off++;
+    }
+    // Match high
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("hime");
+        cheats_list[off].match_high = i;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("hiu");
+        cheats_list[off].match_high = i;
+        cheats_list[off].affects = 1;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("hius");
+        cheats_list[off].match_high = i;
+        cheats_list[off].affects = 2;
+        off++;
+    }
+    // Match low
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("lome");
+        cheats_list[off].match_low = i;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("lou");
+        cheats_list[off].match_low = i;
+        cheats_list[off].affects = 1;
+        off++;
+    }
+    for (int i = 0; i < GOAL_NUM; i++) {
+        cheats_list[off] = cheat_new("lous");
+        cheats_list[off].match_low = i;
+        cheats_list[off].affects = 2;
+        off++;
+    }
+    for (int i = 0; i < off; i++) {
+        cheat_print(&cheats_list[i]);
+    }
+    to_continue();
+    // exit(0);
 }
 
 //
@@ -717,7 +797,7 @@ int main() {
     printfc(CLR1, "Good luck!\n");
     to_continue();
     // Setup cheats
-    struct Cheat cheats_list[64];
+    struct Cheat cheats_list[1024];
     cheats_list_init(cheats_list);
     // Gain some cheats
     loot_box(&state, cheats_list);
