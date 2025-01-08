@@ -12,7 +12,7 @@ OUT_DIR = ./out
 TARGET = $(OUT_DIR)/main.out
 
 # Build target
-all: init $(TARGET)
+all: $(TARGET)
 
 $(TARGET): $(SRCS) | $(OUT_DIR)
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRCS)

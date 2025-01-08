@@ -102,7 +102,7 @@ void printfc(enum Color color, const char *format, ...) {
 void print_div() {
     printfc(CLR4, "▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂  ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂  ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂\n");
 }
-void print_screen_title(char title[TERM_WIDTH]) {
+void print_screen_title(char title[]) {
     printfc(CLR6, "█ %s ", title);
     for (int i = 0; i < TERM_WIDTH - strlen(title) - 2; i++) {
         printfc(CLR6, "█");
@@ -110,10 +110,10 @@ void print_screen_title(char title[TERM_WIDTH]) {
     printfc(CLR1, "\n");
     print_div();
 }
-void print_subtitle(enum Color color, char subtitle[TERM_WIDTH - 16]) {
+void print_subtitle(enum Color color, char subtitle[]) {
     printfc(color, "███ %s █████████████████████\n", subtitle);
 }
-void clear_screen(char title[TERM_WIDTH]) {
+void clear_screen(char title[]) {
     // Clear screen
     #ifdef _WIN32
         system("cls");
@@ -495,7 +495,7 @@ struct Match match_new() {
     match_start(&match);
     return match;
 }
-void match_end(struct Match *match, struct State *state, struct Cheat cheats_list[], int won, char msg[32]) { // won = 2 == draw
+void match_end(struct Match *match, struct State *state, struct Cheat cheats_list[], int won, char msg[]) { // won = 2 == draw
     print_subtitle(CLR2, "Match Ended");
     to_continue();
     enum Color result_colors[3] = {CLR2, CLR4, CLR5};
