@@ -41,7 +41,7 @@
 //
 // Utils
 //
-enum Color { // TODO: use a color scheme of 8 colors instead of so many - can add bold
+enum Color { 
     CLR1,
     CLR2,
     CLR3,
@@ -173,6 +173,7 @@ void opponent_name_rand(char *name) {
 //
 struct Cheat {
     char name[32];
+    int affects; // 0 = player, 1 = opponent, 2 = both
     int add;
     int sub;
     int div;
@@ -180,15 +181,14 @@ struct Cheat {
     int set;
     bool reverse;
     bool invert;
-    bool reset_both;
-    bool reset_player;
-    bool reset_opponent;
+    bool reset;
     bool match_high;
     bool match_low;
 };
 struct Cheat cheat_new(char name[32]) {
     struct Cheat cheat;
     strcpy(cheat.name, name);
+    cheat.affects = 0;
     cheat.add = 0;
     cheat.sub = 0;
     cheat.div = 0;
@@ -196,25 +196,23 @@ struct Cheat cheat_new(char name[32]) {
     cheat.set = 0;
     cheat.reverse = 0;
     cheat.invert = 0;
-    cheat.reset_both = 0;
-    cheat.reset_player = 0;
-    cheat.reset_opponent = 0;
+    cheat.reset = 0;
     cheat.match_high = 0;
     cheat.match_low = 0;
     return cheat;
 }
 void cheat_print(struct Cheat *cheat) {
     printfc(CLR3, "%s ", cheat->name);
+    if (cheat->affects == 1) printfc(CLR4, "| affects opponent ");
+    if (cheat->affects == 2) printfc(CLR4, "| affects both ");
     if (cheat->add != 0) printfc(CLR4, "| adds %d ", cheat->add);
     if (cheat->sub != 0) printfc(CLR4, "| subtracts %d ", cheat->sub);
     if (cheat->div != 0) printfc(CLR4, "| divides by %d ", cheat->div);
     if (cheat->mult != 0) printfc(CLR4, "| multiplies by %d ", cheat->mult);
     if (cheat->set != 0) printfc(CLR4, "| sets to %d ", cheat->set);
     if (cheat->reverse) printfc(CLR4, "| reverses scores ");
-    if (cheat->invert) printfc(CLR4, "| inverts scores ");
-    if (cheat->reset_both) printfc(CLR4, "| resets both scores ");
-    if (cheat->reset_player) printfc(CLR4, "| resets player score ");
-    if (cheat->reset_opponent) printfc(CLR4, "| resets opponent score ");
+    if (cheat->invert) printfc(CLR4, "| inverts score ");
+    if (cheat->reset) printfc(CLR4, "| resets score");
     if (cheat->match_high) printfc(CLR4, "| matches high score ");
     if (cheat->match_low) printfc(CLR4, "| matches low score ");
     printfc(CLR1, "\n");
@@ -223,7 +221,12 @@ void cheat_print(struct Cheat *cheat) {
 //
 // Cheats list
 //
-#define CHEATS_AMT 12
+#define CHEATS_AMT_CHAOS 4
+#define CHEATS_AMT_DAGGERS 4
+#define CHEATS_AMT_SHARDS 4
+#define CHEATS_AMT_BOMBS 4
+#define CHEATS_AMT_KINGS 4
+#define CHEATS_AMT 33 + CHEATS_AMT_CHAOS + CHEATS_AMT_DAGGERS + CHEATS_AMT_SHARDS + CHEATS_AMT_BOMBS + CHEATS_AMT_KINGS
 void cheats_list_init(struct Cheat *cheats_list) {
     cheats_list[0] = cheat_new("ace");
     cheats_list[0].add = 1;
@@ -234,19 +237,23 @@ void cheats_list_init(struct Cheat *cheats_list) {
     cheats_list[3] = cheat_new("king");
     cheats_list[3].add = 8;
     cheats_list[4] = cheat_new("joker");
-    cheats_list[4].reset_both = 1;
+    cheats_list[4].affects = 2;
+    cheats_list[4].reset = 1;
     cheats_list[5] = cheat_new("wild");
-    cheats_list[5].reverse = 1;
+    cheats_list[5].affects = 2;
+    cheats_list[5].invert = 1;
     cheats_list[6] = cheat_new("rebel");
-    cheats_list[6].invert = 1;
+    cheats_list[6].reverse = 1;
     cheats_list[7] = cheat_new("worker");
     cheats_list[7].match_high = 1;
     cheats_list[8] = cheat_new("kingpin");
     cheats_list[8].match_low = 1;
     cheats_list[9] = cheat_new("calamity");
     cheats_list[9].div = 2;
+    cheats_list[9].affects = 2;
     cheats_list[10] = cheat_new("catastrophe");
     cheats_list[10].div = 4;
+    cheats_list[10].affects = 2;
     cheats_list[11] = cheat_new("lucky");
     cheats_list[11].set = 7;
     cheats_list[12] = cheat_new("unlucky");
@@ -259,19 +266,100 @@ void cheats_list_init(struct Cheat *cheats_list) {
     cheats_list[15].set = GOAL_NUM - 7;
     cheats_list[16] = cheat_new("warlock");
     cheats_list[16].mult = 2;
+    cheats_list[16].affects = 2;
     cheats_list[17] = cheat_new("wizard");
     cheats_list[17].mult = 4;
     cheats_list[18] = cheat_new("sorcerer");
     cheats_list[18].mult = 8;
     cheats_list[19] = cheat_new("saint");
-    cheats_list[19].set = 1;
-    cheats_list[19].reverse = 1;
+    cheats_list[19].set = GOAL_NUM - 1;
+    cheats_list[19].affects = 2;
     cheats_list[20] = cheat_new("sinner");
     cheats_list[20].set = 1;
-    cheats_list[20].invert = 1;
+    cheats_list[20].reverse = 1;
     cheats_list[21] = cheat_new("savior");
-    cheats_list[21].reset_both = 1;
+    cheats_list[21].affects = 2;
+    cheats_list[21].reset = 1;
     cheats_list[21].set = GOAL_NUM - 1;
+    cheats_list[22] = cheat_new("slammer");
+    cheats_list[22].affects = 1;
+    cheats_list[22].set = 1;
+    cheats_list[23] = cheat_new("a-bomb");
+    cheats_list[23].affects = 2;
+    cheats_list[23].set = 1;
+    cheats_list[24] = cheat_new("bomber");
+    cheats_list[24].affects = 2;
+    cheats_list[24].set = 7;
+    cheats_list[25] = cheat_new("c4");
+    cheats_list[25].affects = 2;
+    cheats_list[25].set = 14;
+    cheats_list[26] = cheat_new("dynamite");
+    cheats_list[26].affects = 2;
+    cheats_list[26].set = 21;
+    cheats_list[27] = cheat_new("glass-dagger");
+    cheats_list[27].affects = 1;
+    cheats_list[27].sub = 1;
+    cheats_list[28] = cheat_new("buffer-knife");
+    cheats_list[28].affects = 1;
+    cheats_list[28].sub = 7;
+    cheats_list[29] = cheat_new("short-sword");
+    cheats_list[29].affects = 1;
+    cheats_list[29].sub = 14;
+    cheats_list[30] = cheat_new("my-axe");
+    cheats_list[30].affects = 1;
+    cheats_list[30].sub = 21;
+    cheats_list[31] = cheat_new("ban-hammer");
+    cheats_list[31].affects = 1;
+    cheats_list[31].sub = 28;
+    cheats_list[32] = cheat_new("falcon");
+    cheats_list[32].affects = 1;
+    cheats_list[32].invert = 1;
+    int offset = 33;
+    for (int i = 0; i < CHEATS_AMT_CHAOS; i++) {
+        char cheat_name[32];
+        snprintf(cheat_name, sizeof(cheat_name), "chaosX%d", i);
+        cheats_list[offset + i] = cheat_new(cheat_name);
+        cheats_list[offset + i].affects = rand() % 3;
+        cheats_list[offset + i].add = rand() % GOAL_NUM;
+        cheats_list[offset + i].div = rand() % GOAL_NUM;
+        cheats_list[offset + i].set = rand() % GOAL_NUM;
+        cheats_list[offset + i].reverse = rand() % 2;
+        cheats_list[offset + i].invert = rand() % 2;
+        cheats_list[offset + i].reset = rand() % 2;
+        cheats_list[offset + i].match_low = rand() % 2;
+    }
+    offset += CHEATS_AMT_CHAOS;
+    for (int i = 0; i < CHEATS_AMT_DAGGERS; i++) {
+        char cheat_name[32];
+        snprintf(cheat_name, sizeof(cheat_name), "daggerX%d", i);
+        cheats_list[offset + i] = cheat_new(cheat_name);
+        cheats_list[offset + i].affects = rand() % 3;
+        cheats_list[offset + i].sub = rand() % GOAL_NUM;
+    }
+    offset += CHEATS_AMT_DAGGERS;
+    for (int i = 0; i < CHEATS_AMT_SHARDS; i++) {
+        char cheat_name[32];
+        snprintf(cheat_name, sizeof(cheat_name), "shardX%d", i);
+        cheats_list[offset + i] = cheat_new(cheat_name);
+        cheats_list[offset + i].affects = rand() % 3;
+        cheats_list[offset + i].add = rand() % GOAL_NUM;
+    }
+    offset += CHEATS_AMT_SHARDS;
+    for (int i = 0; i < CHEATS_AMT_BOMBS; i++) {
+        char cheat_name[32];
+        snprintf(cheat_name, sizeof(cheat_name), "bombX%d", i);
+        cheats_list[offset + i] = cheat_new(cheat_name);
+        cheats_list[offset + i].affects = rand() % 3;
+        cheats_list[offset + i].mult = rand() % GOAL_NUM;
+    }
+    offset += CHEATS_AMT_BOMBS;
+    for (int i = 0; i < CHEATS_AMT_KINGS; i++) {
+        char cheat_name[32];
+        snprintf(cheat_name, sizeof(cheat_name), "kingX%d", i);
+        cheats_list[offset + i] = cheat_new(cheat_name);
+        cheats_list[offset + i].affects = rand() % 3;
+        cheats_list[offset + i].div = rand() % GOAL_NUM;
+    }
 }
 
 //
@@ -487,7 +575,7 @@ void opponent_turn(struct Match *match) {
     int roll = roll_die(match->die_sides);
     match->opponent_total += roll;
     match->opponent_held = false;
-    printfc(CLR4, "%s rolls: %d\n", match->opponent_name, roll);
+    printfc(CLR4, "%s rolls: %d / %d\n", match->opponent_name, roll, match->die_sides);
 }
 
 //
@@ -498,7 +586,7 @@ void cmd_roll(struct Match *match) {
     int roll = roll_die(match->die_sides);
     match->player_total += roll;
     match->turn++;
-    printfc(CLR4, "player rolls: %d\n", roll);
+    printfc(CLR4, "player rolls: %d / %d\n", roll, match->die_sides);
     opponent_turn(match);
     match->player_held = false;
 }
@@ -524,25 +612,32 @@ void cmd_use_cheat(struct State *state, struct Match *match, int cheat_index, st
     }
     struct Cheat cheat = cheats_list[used_index];
     cheat_print(&cheat);
+    bool affects_player = cheat.affects == 0 || cheat.affects == 2;
+    bool affects_opponent = cheat.affects == 1 || cheat.affects == 2;
     if (cheat.add != 0) {
         printfc(CLR1, "Adding %d\n", cheat.add);
-        match->player_total += cheat.add;
+        if (affects_player) match->player_total += cheat.add;
+        if (affects_opponent) match->opponent_total += cheat.add;
     }
     if (cheat.sub != 0) {
         printfc(CLR1, "Subtracting %d\n", cheat.sub);
-        match->player_total -= cheat.sub;
+        if (affects_player) match->player_total -= cheat.sub;
+        if (affects_opponent) match->opponent_total -= cheat.sub;
     }
     if (cheat.div != 0) {
         printfc(CLR1, "Dividing by %d\n", cheat.div);
-        match->player_total /= cheat.div;
+        if (affects_player) match->player_total /= cheat.div;
+        if (affects_opponent) match->opponent_total /= cheat.div;
     }
     if (cheat.mult != 0) {
         printfc(CLR1, "Multiplying by %d\n", cheat.mult);
-        match->player_total *= cheat.mult;
+        if (affects_player) match->player_total *= cheat.mult;
+        if (affects_opponent) match->opponent_total *= cheat.mult;
     }
     if (cheat.set != 0) {
         printfc(CLR1, "Setting to %d\n", cheat.set);
-        match->player_total = cheat.set;
+        if (affects_player) match->player_total = cheat.set;
+        if (affects_opponent) match->opponent_total = cheat.set;
     }
     if (cheat.reverse) {
         printfc(CLR1, "Reversing scores\n");
@@ -552,21 +647,13 @@ void cmd_use_cheat(struct State *state, struct Match *match, int cheat_index, st
     }
     if (cheat.invert) {
         printfc(CLR1, "Inverting scores\n");
-        match->player_total = GOAL_NUM - match->player_total;
-        match->opponent_total = GOAL_NUM - match->opponent_total;
+        if (affects_player) match->player_total = GOAL_NUM - match->player_total;
+        if (affects_opponent) match->opponent_total = GOAL_NUM - match->opponent_total;
     }
-    if (cheat.reset_both) {
-        printfc(CLR1, "Resetting both scores\n");
-        match->player_total = 0;
-        match->opponent_total = 0;
-    }
-    if (cheat.reset_player) {
-        printfc(CLR1, "Resetting player score\n");
-        match->player_total = 0;
-    }
-    if (cheat.reset_opponent) {
-        printfc(CLR1, "Resetting opponent score\n");
-        match->opponent_total = 0;
+    if (cheat.reset) {
+        printfc(CLR1, "Resetting score\n");
+        if (affects_player) match->player_total = 0;
+        if (affects_opponent) match->opponent_total = 0;
     }
     if (cheat.match_high) {
         printfc(CLR1, "Matching high score\n");
@@ -630,7 +717,7 @@ int main() {
     printfc(CLR1, "Good luck!\n");
     to_continue();
     // Setup cheats
-    struct Cheat cheats_list[32];
+    struct Cheat cheats_list[64];
     cheats_list_init(cheats_list);
     // Gain some cheats
     loot_box(&state, cheats_list);
