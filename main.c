@@ -11,8 +11,9 @@
 #define TERM_WIDTH 66
 
 // Config
-#define DISABLE_COLORS 0
 #define USE_RAW_INPUT 1
+#define ENABLE_COLORS 1
+#define ENABLE_BELL 1
 
 #define CMD_ROLL 'r'
 #define CMD_HOLD 'w'
@@ -29,31 +30,22 @@
 #define CMD_USE_CHEAT_7 '7'
 #define CMD_USE_CHEAT_8 '8'
 
-#define CLR1_CLR "\033[1;90m" // light grey
-#define CLR2_CLR "\033[1;91m" // bright red
-#define CLR3_CLR "\033[1;94m" // bright blue
-#define CLR4_CLR "\033[1;32m" // lime green
-#define CLR5_CLR "\033[1;33m" // vibrant yellow
-#define CLR6_CLR "\033[1;95m" // bright magenta
-#define CLR7_CLR "\033[1;96m" // bright cyan
-#define CLR8_CLR "\033[1;97m" // bright white
+#define CLR1_CLR "\033[1;90m" // grey
+#define CLR2_CLR "\033[1;91m" // red
+#define CLR3_CLR "\033[1;94m" // blue
+#define CLR4_CLR "\033[1;32m" // green
+#define CLR5_CLR "\033[1;33m" // yellow
+#define CLR6_CLR "\033[1;95m" // magenta
+#define CLR7_CLR "\033[1;96m" // cyan
+#define CLR8_CLR "\033[1;97m" // white
 
 //
 // Utils
 //
-enum Color { 
-    CLR1,
-    CLR2,
-    CLR3,
-    CLR4,
-    CLR5,
-    CLR6,
-    CLR7,
-    CLR8
-};
+enum Color { CLR1, CLR2, CLR3, CLR4, CLR5, CLR6, CLR7, CLR8 };
 
 void clr_start(enum Color color) {
-    if (DISABLE_COLORS) return;
+    if (!ENABLE_COLORS) return;
     switch (color) {
         case CLR1:
             printf(CLR1_CLR);
@@ -82,7 +74,7 @@ void clr_start(enum Color color) {
     }
 }
 void clr_end() {
-    if (DISABLE_COLORS) return;
+    if (!ENABLE_COLORS) return;
     printf("\033[0m");
 }
 void printfc(enum Color color, const char *format, ...) {
@@ -103,6 +95,7 @@ void print_div() {
     printfc(CLR4, "▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂  ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂  ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂\n");
 }
 void print_screen_title(char title[]) {
+    if (ENABLE_BELL) printf("\a");
     printfc(CLR6, "█ %s ", title);
     for (int i = 0; i < TERM_WIDTH - strlen(title) - 2; i++) {
         printfc(CLR6, "█");
@@ -120,7 +113,6 @@ void clear_screen(char title[]) {
     #else
         system("clear");
     #endif
-    printf("\a");
     print_screen_title(title);
 }
 void to_continue() {
@@ -136,34 +128,7 @@ void to_continue() {
 // Opponent Names
 //
 void opponent_name_rand(char *name) {
-    char opponent_names[][64] = {
-        "archalis",
-        "bertule",
-        "chalistis",
-        "dalth",
-        "erdwin",
-        "flen",
-        "galdor",
-        "haldor",
-        "isandul",
-        "jaldor",
-        "kaldor",
-        "lailer",
-        "miike",
-        "nilandor",
-        "oldwald",
-        "paldor",
-        "quildor",
-        "raldor",
-        "saldor",
-        "taldor",
-        "uoldor",
-        "vildor",
-        "waldor",
-        "xildor",
-        "yooldor",
-        "zandor"
-    };
+    char opponent_names[][64] = {"archalis", "bertule", "chalistis", "dalth", "erdwin", "flen", "galdor", "haldor", "isandul", "jaldor", "kaldor", "lailer", "miike", "nilandor", "oldwald", "paldor", "quildor", "raldor", "saldor", "taldor", "uoldor", "vildor", "waldor", "xildor", "yooldor", "zandor"};
     // sprintfc(CLR1, name, "%s.%s", opponent_names[rand() % 16], opponent_names[rand() % 16]);
     strcpy(name, opponent_names[rand() % 26]);
 }
@@ -201,6 +166,13 @@ struct Cheat cheat_new(char name[32]) {
     cheat.match_low = 0;
     return cheat;
 }
+// Updates props according to other set props
+void cheat_sync(struct Cheat *cheat) {
+    if (cheat->match_high 
+        || cheat->match_low 
+        || cheat->reverse) 
+    { cheat->affects = 2; }
+}
 void cheat_print(struct Cheat *cheat) {
     printfc(CLR3, "%s ", cheat->name);
     if (cheat->affects == 0) printfc(CLR5, "| plr ");
@@ -222,7 +194,8 @@ void cheat_print(struct Cheat *cheat) {
 //
 // Cheats list
 //
-#define CHEATS_AMT (30 * GOAL_NUM)
+#define GOAL_NUM_H (GOAL_NUM / 2)
+#define CHEATS_AMT ((15 * GOAL_NUM) + (9 * GOAL_NUM_H))
 void cheats_list_init(struct Cheat *cheats_list) {
     int off = 0;
     // Add
@@ -231,6 +204,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         sprintf(name, "shardx%d", i);
         cheats_list[off] = cheat_new(name);
         cheats_list[off].add = i + 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM; i++) {
@@ -239,6 +213,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheats_list[off] = cheat_new(name);
         cheats_list[off].add = i + 1;
         cheats_list[off].affects = 2;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM; i++) {
@@ -247,6 +222,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheats_list[off] = cheat_new(name);
         cheats_list[off].add = i + 1;
         cheats_list[off].affects = 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     // Sub
@@ -255,6 +231,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         sprintf(name, "medx%d", i);
         cheats_list[off] = cheat_new(name);
         cheats_list[off].sub = i + 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM; i++) {
@@ -263,6 +240,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheats_list[off] = cheat_new(name);
         cheats_list[off].sub = i + 1;
         cheats_list[off].affects = 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM; i++) {
@@ -271,6 +249,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheats_list[off] = cheat_new(name);
         cheats_list[off].sub = i + 1;
         cheats_list[off].affects = 2;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     // Mult
@@ -279,6 +258,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         sprintf(name, "windfallx%d", i);
         cheats_list[off] = cheat_new(name);
         cheats_list[off].mult = i + 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM; i++) {
@@ -287,6 +267,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheats_list[off] = cheat_new(name);
         cheats_list[off].mult = i + 1;
         cheats_list[off].affects = 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM; i++) {
@@ -295,6 +276,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheats_list[off] = cheat_new(name);
         cheats_list[off].mult = i + 1;
         cheats_list[off].affects = 2;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     // Div
@@ -303,6 +285,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         sprintf(name, "forgex%d", i);
         cheats_list[off] = cheat_new(name);
         cheats_list[off].div = i + 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM; i++) {
@@ -311,6 +294,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheats_list[off] = cheat_new(name);
         cheats_list[off].div = i + 1;
         cheats_list[off].affects = 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM; i++) {
@@ -319,6 +303,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheats_list[off] = cheat_new(name);
         cheats_list[off].div = i + 1;
         cheats_list[off].affects = 2;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     // Set
@@ -327,6 +312,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         sprintf(name, "loaderx%d", i);
         cheats_list[off] = cheat_new(name);
         cheats_list[off].set = i + 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM; i++) {
@@ -335,6 +321,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheats_list[off] = cheat_new(name);
         cheats_list[off].set = i + 1;
         cheats_list[off].affects = 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM; i++) {
@@ -343,103 +330,76 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheats_list[off] = cheat_new(name);
         cheats_list[off].set = i + 1;
         cheats_list[off].affects = 2;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     // Reverse
-    for (int i = 0; i < GOAL_NUM; i++) {
-        cheats_list[off] = cheat_new("revme");
-        cheats_list[off].reverse = i;
-        off++;
-    }
-    for (int i = 0; i < GOAL_NUM; i++) {
-        cheats_list[off] = cheat_new("revu");
-        cheats_list[off].reverse = i;
-        cheats_list[off].affects = 1;
-        off++;
-    }
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("revus");
         cheats_list[off].reverse = i;
-        cheats_list[off].affects = 2;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     // Invert
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("inme");
         cheats_list[off].invert = i;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("inu");
         cheats_list[off].invert = i;
         cheats_list[off].affects = 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("inus");
         cheats_list[off].invert = i;
         cheats_list[off].affects = 2;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     // Reset
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("rstme");
         cheats_list[off].reset = i;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("rstu");
         cheats_list[off].reset = i;
         cheats_list[off].affects = 1;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("rstus");
         cheats_list[off].reset = i;
         cheats_list[off].affects = 2;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     // Match high
-    for (int i = 0; i < GOAL_NUM; i++) {
-        cheats_list[off] = cheat_new("hime");
+    for (int i = 0; i < GOAL_NUM_H; i++) {
+        cheats_list[off] = cheat_new("himex");
         cheats_list[off].match_high = i;
-        off++;
-    }
-    for (int i = 0; i < GOAL_NUM; i++) {
-        cheats_list[off] = cheat_new("hiu");
-        cheats_list[off].match_high = i;
-        cheats_list[off].affects = 1;
-        off++;
-    }
-    for (int i = 0; i < GOAL_NUM; i++) {
-        cheats_list[off] = cheat_new("hius");
-        cheats_list[off].match_high = i;
-        cheats_list[off].affects = 2;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
     // Match low
-    for (int i = 0; i < GOAL_NUM; i++) {
-        cheats_list[off] = cheat_new("lome");
+    for (int i = 0; i < GOAL_NUM_H; i++) {
+        cheats_list[off] = cheat_new("lomex");
         cheats_list[off].match_low = i;
+        cheat_sync(&cheats_list[off]);
         off++;
     }
-    for (int i = 0; i < GOAL_NUM; i++) {
-        cheats_list[off] = cheat_new("lou");
-        cheats_list[off].match_low = i;
-        cheats_list[off].affects = 1;
-        off++;
-    }
-    for (int i = 0; i < GOAL_NUM; i++) {
-        cheats_list[off] = cheat_new("lous");
-        cheats_list[off].match_low = i;
-        cheats_list[off].affects = 2;
-        off++;
-    }
-    for (int i = 0; i < off; i++) {
-        cheat_print(&cheats_list[i]);
-    }
-    to_continue();
-    // exit(0);
+    // for (int i = 0; i < off; i++) {
+    //     cheat_print(&cheats_list[i]);
+    // }
+    // to_continue();
 }
 
 //
@@ -657,7 +617,123 @@ void opponent_turn(struct Match *match) {
     match->opponent_held = false;
     printfc(CLR4, "%s rolls: %d / %d\n", match->opponent_name, roll, match->die_sides);
 }
+void random_encounters(struct State *state, struct Cheat cheats_list[]) {
+    if (rand() % 3 == 0) {
+        print_subtitle(CLR3, "found extra loot box!");
+        printfc(CLR1, "After the last match you found\nan extra loot box in the dust!\n");
+        to_continue();
+        loot_box(state, cheats_list);
+    }
+    if (rand() % 5 == 0) {
+        print_subtitle(CLR3, "found a hacker!");
+        printfc(CLR1, "After the last match you come across\na hacker who is willing to trade cheats for gold!\n");
+        to_continue();
+    }
+    if (rand() % 5 == 0) {
+        print_subtitle(CLR3, "found a patron!");
+        printfc(CLR1, "After the last match you come across\na patron who likes the way you play!\n");
+        int gives = rand() % 5 + 1;
+        printfc(CLR1, "They give you %d gold!\n", gives);
+        state->gold += gives;
+        to_continue();
+    }
+    if (rand() % 5 == 0) {
+        print_subtitle(CLR3, "found a patron hacker!");
+        printfc(CLR1, "After the last match you come across\na patron hacker who likes the way you play!\n");
+        printfc(CLR1, "They give you a loot box!\n");
+        to_continue();
+        loot_box(state, cheats_list);
+    }
+    if (rand() % 5 == 0) {
+        print_subtitle(CLR2, "found a thief!");
+        printfc(CLR1, "After the last match you are assaulted by\na thief who looks mean!\n");
+        int takes = rand() % 5 + 1;
+        if (takes > state->gold) {
+            takes = state->gold;
+        }
+        printfc(CLR1, "They take %d gold from you!\n", takes);
+        state->gold -= takes;
+        if (state->gold < 0) {
+            printfc(CLR1, "They feel a little bad about taking your last gold.\n");
+            printfc(CLR1, "They give you one piece back!\n");
+            state->gold = 1;
+        }
+        to_continue();
+    }
+    if (rand() % 5 == 0) {
+        print_subtitle(CLR2, "found a hacking thief!");
+        printfc(CLR1, "After the last match you are assaulted by\na hacking thief who looks kinda wimpy!\n");
+        printfc(CLR1, "But they have some 'hitek' hacking tools!\n");
+        int slot = rand() % state->cheats_cap;
+        printfc(CLR1, "They try to take the cheat in slot %d", slot + 1);
+        if (state->cheats[slot] != -1) {
+            printfc(CLR1, "\nand they get it!\n");
+            cheat_print(&cheats_list[state->cheats[slot]]);
+            state->cheats[slot] = -1;
+        }
+        else {
+            printfc(CLR1, "\nbut you have no cheats in that slot!\n");
+        }
+        to_continue();
+    }
+}
+//
+// Screens
+//
+void welcome_screen() {
+    clear_screen("WELCOME");
+    printfc(CLR2, "       .__    ________ ________  __    \n");
+    printfc(CLR3, "  ____ |  |__ \\_____  \\\\_____  \\/  |_  ___________\n");
+    printfc(CLR4, "_/ ___\\|  |  \\  _(__  <  _(__  <   __\\/ __ \\_  __ \\\n");
+    printfc(CLR5, "\\  \\___|   Y  \\/       \\/       \\  | \\  ___/|  | \\/\n");
+    printfc(CLR6, " \\___  >___|  /______  /______  /__|  \\___  >__|   \n");
+    printfc(CLR7, "     \\/     \\/       \\/       \\/          \\/       \n");
 
+    printfc(CLR1, "You will be challenged in a game something\nlike what you might call '21'.\n");
+    printfc(CLR1, "Here, the goal is to reach %d without going over.\nAnd we play with custom dice!\n", GOAL_NUM);
+    printfc(CLR1, "Your opponents will be many. Some will be\nstrong some will be weak.\n");
+    printfc(CLR4, "They will bring their own dice. You must account for that.\n");
+    printfc(CLR5, "The best way to account for that might be cheating...\n");
+    printfc(CLR1, "Good luck!\n");
+    to_continue();
+}
+void intro_screen() {
+    clear_screen("Intro");
+    printfc(CLR4, "You have been given some cheats to start with\n");
+    printfc(CLR3, "-  use these cheats to help you win matches\n");
+    printfc(CLR3, "-  also gain more cheats by winning matches\n");
+    printfc(CLR3, "-  inspect your cheats at any time by pressing");
+    printfc(CLR6, " %c\n", CMD_CHEAT_LIST);
+    printfc(CLR3, "-  inspect your opponent at any time by pressing");
+    printfc(CLR6, " %c\n", CMD_OPPONENT);
+    printfc(CLR3, "-  roll by pressing");
+    printfc(CLR6, " %c\n", CMD_ROLL);
+    printfc(CLR3, "-  hold by pressing");
+    printfc(CLR6, " %c\n", CMD_HOLD);
+    printfc(CLR3, "-  use cheats by pressing");
+    printfc(CLR6, " %c, %c", CMD_USE_CHEAT_1, CMD_USE_CHEAT_2);
+    printfc(CLR3, " and so on\n");
+    printfc(CLR4, "The goal is to get as high of a score as you can\nwithout going over");
+    printfc(CLR4, " %d\n", GOAL_NUM);
+    printfc(CLR7, "\n███ Press %c to see the help screen during a match! ██████████████\n", CMD_HELP);
+    to_continue();
+}
+void game_over_screen() {
+    clear_screen("Game Over");
+    printfc(CLR1, "\n       $$$$$$$$$$$$$$$\n");
+    printfc(CLR2, "     $$$$$$$$$$$$$$$$$$$$\n");
+    printfc(CLR3, "   $$$$$$$$$$$$$$$$$$$$$$$$    NO\n");
+    printfc(CLR4, "  $$$$$$$$$$$$$$$$$$$$$$$$$$\n");
+    printfc(CLR5, " $$$$$$$$$$$$/      \\$$$/   $    MORE\n");
+    printfc(CLR6, "$$$$$$$$$$$$$\\      $$  $___$\n");
+    printfc(CLR7, "$$$$$$$$$$ $$$$$$$$$$  | \\$$$$$    GOLD!\n");
+    printfc(CLR8, "$$$$$$$$$$ $$$$$$$$$\\__$_/$$$$$\n");
+    printfc(CLR1, " $$$$$$$$$$$$/,/,/./'/_|.\\'\\,\\\n");
+    printfc(CLR2, "   $$$$$$$$$$||||||||||||||||||\n");
+    printfc(CLR3, "              \\/|/|/|/|/|/|/|/ \n\n");
+    printfc(CLR2, "\nYou are brutally assaulted for your inability to pay your debts.\n");
+    print_div();
+}
 //
 // Commands
 //
@@ -753,8 +829,8 @@ void cmd_use_cheat(struct State *state, struct Match *match, int cheat_index, st
     }
 }
 void cmd_help() {
-    clear_screen("Help");
-    printfc(CLR1, "Commands:\n");
+    clear_screen("Help p1");
+    printfc(CLR1, "Page 1/3 - Commands:\n");
     printfc(CLR1, "%c - roll\n", CMD_ROLL);
     printfc(CLR1, "%c - hold\n", CMD_HOLD);
     printfc(CLR1, "%c - inspect cheat slots\n", CMD_CHEAT_LIST);
@@ -769,6 +845,13 @@ void cmd_help() {
     printfc(CLR1, "%c - use cheat slot 8\n", CMD_USE_CHEAT_8);
     printfc(CLR1, "%c - quit\n", CMD_QUIT);
     printfc(CLR1, "%c - help\n", CMD_HELP);
+    to_continue();
+    clear_screen("Help p2");
+    printfc(CLR1, "Page 2/3 - Rules:\n");
+    to_continue();
+    clear_screen("Help p3");
+    printfc(CLR1, "Page 3/3 - Tips:\n"); 
+    to_continue();
 }
 
 //
@@ -781,21 +864,7 @@ int main() {
     // Setup basic game state
     struct State state = state_new();
     // Welcome
-    clear_screen("WELCOME");
-    printfc(CLR2, "       .__    ________ ________  __    \n");
-    printfc(CLR3, "  ____ |  |__ \\_____  \\\\_____  \\/  |_  ___________\n");
-    printfc(CLR4, "_/ ___\\|  |  \\  _(__  <  _(__  <   __\\/ __ \\_  __ \\\n");
-    printfc(CLR5, "\\  \\___|   Y  \\/       \\/       \\  | \\  ___/|  | \\/\n");
-    printfc(CLR6, " \\___  >___|  /______  /______  /__|  \\___  >__|   \n");
-    printfc(CLR7, "     \\/     \\/       \\/       \\/          \\/       \n");
-
-    printfc(CLR1, "You will be challenged in a game something\nlike what you might call '21'.\n");
-    printfc(CLR1, "Here, the goal is to reach %d without going over.\nAnd we play with custom dice!\n", GOAL_NUM);
-    printfc(CLR1, "Your opponents will be many. Some will be\nstrong some will be weak.\n");
-    printfc(CLR4, "They will bring their own dice. You must account for that.\n");
-    printfc(CLR5, "The best way to account for that might be cheating...\n");
-    printfc(CLR1, "Good luck!\n");
-    to_continue();
+    welcome_screen();
     // Setup cheats
     struct Cheat cheats_list[1024];
     cheats_list_init(cheats_list);
@@ -804,25 +873,7 @@ int main() {
     loot_box(&state, cheats_list);
     loot_box(&state, cheats_list);
     // Intro
-    clear_screen("Intro");
-    printfc(CLR4, "You have been given some cheats to start with\n");
-    printfc(CLR3, "-  use these cheats to help you win matches\n");
-    printfc(CLR3, "-  also gain more cheats by winning matches\n");
-    printfc(CLR3, "-  inspect your cheats at any time by pressing");
-    printfc(CLR6, " %c\n", CMD_CHEAT_LIST);
-    printfc(CLR3, "-  inspect your opponent at any time by pressing");
-    printfc(CLR6, " %c\n", CMD_OPPONENT);
-    printfc(CLR3, "-  roll by pressing");
-    printfc(CLR6, " %c\n", CMD_ROLL);
-    printfc(CLR3, "-  hold by pressing");
-    printfc(CLR6, " %c\n", CMD_HOLD);
-    printfc(CLR3, "-  use cheats by pressing");
-    printfc(CLR6, " %c, %c", CMD_USE_CHEAT_1, CMD_USE_CHEAT_2);
-    printfc(CLR3, " and so on\n");
-    printfc(CLR4, "The goal is to get as high of a score as you can\nwithout going over");
-    printfc(CLR4, " %d\n", GOAL_NUM);
-    printfc(CLR7, "\n███ Press %c to see the help screen during a match! ██████████████\n", CMD_HELP);
-    to_continue();
+    intro_screen();
     // Start first match
     clear_screen("ch33ter");
     struct Match match = match_new();
@@ -844,7 +895,6 @@ int main() {
             while(getchar() != '\n');
             clear_screen("ch33ter");
         }
-        bool show_match = 1;
         switch (input) {
             case CMD_USE_CHEAT_1:
                 cmd_use_cheat(&state, &match, 0, cheats_list);
@@ -884,7 +934,6 @@ int main() {
                 break;
             case CMD_HELP:
                 cmd_help();
-                show_match = 0;
                 break;
             case CMD_QUIT:
                 run = 0;
@@ -892,86 +941,18 @@ int main() {
             default:
                 printfc(CLR1, "Invalid input\n");
         }
-        if (show_match) {
-            match_print(&match);
-            printfc(CLR1, "Gold: %d\n", state.gold);
-        }
+        // Show match info
+        match_print(&match);
+        printfc(CLR1, "Gold: %d\n", state.gold);
         // Check for match end
         match_check(&match, &state, cheats_list);
         if (state.gold < 0) {
-            clear_screen("Game Over");
-            printfc(CLR1, "\n       $$$$$$$$$$$$$$$\n");
-            printfc(CLR2, "     $$$$$$$$$$$$$$$$$$$$\n");
-            printfc(CLR3, "   $$$$$$$$$$$$$$$$$$$$$$$$    NO\n");
-            printfc(CLR4, "  $$$$$$$$$$$$$$$$$$$$$$$$$$\n");
-            printfc(CLR5, " $$$$$$$$$$$$/      \\$$$/   $    MORE\n");
-            printfc(CLR6, "$$$$$$$$$$$$$\\      $$  $___$\n");
-            printfc(CLR7, "$$$$$$$$$$ $$$$$$$$$$  | \\$$$$$    GOLD!\n");
-            printfc(CLR8, "$$$$$$$$$$ $$$$$$$$$\\__$_/$$$$$\n");
-            printfc(CLR1, " $$$$$$$$$$$$/,/,/./'/_|.\\'\\,\\\n");
-            printfc(CLR2, "   $$$$$$$$$$||||||||||||||||||\n");
-            printfc(CLR3, "              \\/|/|/|/|/|/|/|/ \n\n");
-            printfc(CLR2, "\nYou are brutally murdered for your inability to pay your debts.\n");
-            print_div();
+            game_over_screen(); 
             run = 0;
             break; // end game
         }
         if (match.ended) {
-            if (rand() % 3 == 0) {
-                print_subtitle(CLR3, "found extra loot box!");
-                printfc(CLR1, "After the last match you found\nan extra loot box in the dust!\n");
-                to_continue();
-                loot_box(&state, cheats_list);
-            }
-            if (rand() % 5 == 0) {
-                print_subtitle(CLR3, "found a hacker!");
-                printfc(CLR1, "After the last match you come across\na hacker who is willing to trade cheats for gold!\n");
-                to_continue();
-            }
-            if (rand() % 5 == 0) {
-                print_subtitle(CLR3, "found a patron!");
-                printfc(CLR1, "After the last match you come across\na patron who likes the way you play!\n");
-                int gives = rand() % 5 + 1;
-                printfc(CLR1, "They give you %d gold!\n", gives);
-                state.gold += gives;
-                to_continue();
-            }
-            if (rand() % 5 == 0) {
-                print_subtitle(CLR3, "found a patron hacker!");
-                printfc(CLR1, "After the last match you come across\na patron hacker who likes the way you play!\n");
-                printfc(CLR1, "They give you a loot box!\n");
-                to_continue();
-                loot_box(&state, cheats_list);
-            }
-            if (rand() % 5 == 0) {
-                print_subtitle(CLR2, "found a thief!");
-                printfc(CLR1, "After the last match you are assaulted by\na thief who looks mean!\n");
-                int takes = rand() % 5 + 1;
-                printfc(CLR1, "They take %d gold from you!\n", takes);
-                state.gold -= takes;
-                if (state.gold < 0) {
-                    printfc(CLR1, "They feel a little bad about taking your last gold.\n");
-                    printfc(CLR1, "They give you one piece back!\n");
-                    state.gold = 1;
-                }
-                to_continue();
-            }
-            if (rand() % 5 == 0) {
-                print_subtitle(CLR2, "found a hacking thief!");
-                printfc(CLR1, "After the last match you are assaulted by\na hacking thief who looks kinda wimpy!\n");
-                printfc(CLR1, "But they have some 'hitek' hacking tools!\n");
-                int slot = rand() % state.cheats_cap;
-                printfc(CLR1, "They try to take the cheat in slot %d", slot + 1);
-                if (state.cheats[slot] != -1) {
-                    printfc(CLR1, "\nand they get it!\n");
-                    cheat_print(&cheats_list[state.cheats[slot]]);
-                    state.cheats[slot] = -1;
-                }
-                else {
-                    printfc(CLR1, "\nbut you have no cheats in that slot!\n");
-                }
-                to_continue();
-            }  
+            random_encounters(&state, cheats_list);
             match_start(&match);
         }
     }
