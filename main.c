@@ -223,7 +223,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     // Add
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
-        sprintf(name, "sh4rdx%c", i);
+        sprintf(name, "sh4rdx%d", i);
         cheats_list[off] = cheat_new(name);
         cheats_list[off].add = i + 1;
         cheat_sync(&cheats_list[off]);
@@ -358,27 +358,27 @@ void cheats_list_init(struct Cheat *cheats_list) {
     // Swap
     for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("5w4px");
-        cheats_list[off].swap = i;
+        cheats_list[off].swap = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     // Invert
     for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("1nvmx");
-        cheats_list[off].invert = i;
+        cheats_list[off].invert = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("1nvux");
-        cheats_list[off].invert = i;
+        cheats_list[off].invert = 1;
         cheats_list[off].affects = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("1nvu5x");
-        cheats_list[off].invert = i;
+        cheats_list[off].invert = 1;
         cheats_list[off].affects = 2;
         cheat_sync(&cheats_list[off]);
         off++;
@@ -386,20 +386,20 @@ void cheats_list_init(struct Cheat *cheats_list) {
     // Reset
     for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("r5tmx");
-        cheats_list[off].reset = i;
+        cheats_list[off].reset = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("r5tux");
-        cheats_list[off].reset = i;
+        cheats_list[off].reset = 1;
         cheats_list[off].affects = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("r5tusx");
-        cheats_list[off].reset = i;
+        cheats_list[off].reset = 1;
         cheats_list[off].affects = 2;
         cheat_sync(&cheats_list[off]);
         off++;
@@ -407,14 +407,14 @@ void cheats_list_init(struct Cheat *cheats_list) {
     // Match high
     for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("h1m3rx");
-        cheats_list[off].match_high = i;
+        cheats_list[off].match_high = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     // Match low
     for (int i = 0; i < GOAL_NUM_H; i++) {
         cheats_list[off] = cheat_new("l0m3rx");
-        cheats_list[off].match_low = i;
+        cheats_list[off].match_low = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
@@ -568,15 +568,15 @@ void match_print_opponent(struct State *state, struct Match *match) {
     printfc(CLR6, "Opponent: %s\n", match->opponent_name);
     printfc(CLR5, "⚄⚀ Die sides: %d\n", match->die_sides);
     if (state->scanner_lvl == 0) {
-        printfc(CLR5, "㊋ Aggressive: ?\n");
-        printfc(CLR5, "㈫ Caution: ? (holds at ?) \n");
+        printfc(CLR5, "㊋ Aggressive: ¿¿¿\n");
+        printfc(CLR5, "㈫ Caution: ¿¿¿ (holds at ¿¿¿) \n");
     }
     if (state->scanner_lvl == 1) {
-        printfc(CLR5, "㊋ Aggressive: %s\n", match->opponent_aggressive ? "yes" : "no");
-        printfc(CLR5, "㈫ Caution: %d (holds at ?) \n", match->opponent_caution);
+        printfc(CLR5, "㊋ Aggressive: %s\n", match->opponent_aggressive ? "✓" : "X");
+        printfc(CLR5, "㈫ Caution: %d (holds at ¿¿¿) \n", match->opponent_caution);
     }
     if (state->scanner_lvl >= 1) {
-        printfc(CLR5, "㊋ Aggressive: %s\n", match->opponent_aggressive ? "yes" : "no");
+        printfc(CLR5, "㊋ Aggressive: %s\n", match->opponent_aggressive ? "✓" : "X");
         printfc(CLR5, "㈫ Caution: %d (holds at %d) \n", match->opponent_caution, GOAL_NUM - match->opponent_caution);
     }
     printfc(CLR3, "Scanned with: Scanner LVL%d\n", state->scanner_lvl);
@@ -881,15 +881,15 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                     char slotc = get_input();
                     if (slotc == CMD_QUIT) break;
                     clear_screen("Selling");
-                    int slot = slotc - '0';// offset by ascii
+                    int slot = slotc - '0' - 1;// offset by ascii
                     int price = rand() % (MAX_PRICE / 3) + 1;
                     if (slot >= 0 && slot < state->cheats_cap) {
-                        if (state->cheats[slot - 1] != -1) {
+                        if (state->cheats[slot] != -1) {
                             printfc(CLR4, "You sold: ");
                             cheat_print(&cheats_list[state->cheats[slot]]);
                             printfc(CLR4, "For %d gold!\n", price);
                             state->gold += price;
-                            state->cheats[slot - 1] = -1;
+                            state->cheats[slot] = -1;
                         }
                         else {
                             printfc(CLR2, "But there is no cheat in that slot!\n");
@@ -909,6 +909,11 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                     break;
             }
         }
+        clear_screen("Exit Vendor");
+        printfc(CLR4, "You exit the vendor\n");
+        state_print_status(state, 1);
+        state_print_cheats(state, cheats_list);
+        to_continue();
     }
     if (rand() % 5 == 0) {
         print_subtitle(CLR3, "Encounter: patron!");
