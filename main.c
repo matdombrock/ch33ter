@@ -32,48 +32,49 @@
 #define CMD_USE_CHEAT_7 '7'
 #define CMD_USE_CHEAT_8 '8'
 
-#define CLR1_CLR "\033[1;90m" // grey
-#define CLR2_CLR "\033[1;91m" // red
-#define CLR3_CLR "\033[1;94m" // blue
-#define CLR4_CLR "\033[1;32m" // green
-#define CLR5_CLR "\033[1;33m" // yellow
-#define CLR6_CLR "\033[1;95m" // magenta
-#define CLR7_CLR "\033[1;96m" // cyan
-#define CLR8_CLR "\033[1;97m" // white
+#define CLR1_CODE "\033[1;90m" // grey
+#define CLR2_CODE "\033[1;91m" // red
+#define CLR3_CODE "\033[1;94m" // blue
+#define CLR4_CODE "\033[1;32m" // green
+#define CLR5_CODE "\033[1;33m" // yellow
+#define CLR6_CODE "\033[1;95m" // magenta
+#define CLR7_CODE "\033[1;96m" // cyan
+#define CLR8_CODE "\033[1;97m" // white
 
 #define STARTING_GOLD 100
 
 //
 // Utils
 //
+// TODO: Color codes could be stored in an array
 enum Color { CLR1, CLR2, CLR3, CLR4, CLR5, CLR6, CLR7, CLR8 };
 // Begin printing in the given color
 void clr_start(enum Color color) {
     if (!ENABLE_COLORS) return;
     switch (color) {
         case CLR1:
-            printf(CLR1_CLR);
+            printf(CLR1_CODE);
             break;
         case CLR2:
-            printf(CLR2_CLR);
+            printf(CLR2_CODE);
             break;
         case CLR3:
-            printf(CLR3_CLR);
+            printf(CLR3_CODE);
             break;
         case CLR4:
-            printf(CLR4_CLR);
+            printf(CLR4_CODE);
             break;
         case CLR5:
-            printf(CLR5_CLR);
+            printf(CLR5_CODE);
             break;
         case CLR6:
-            printf(CLR6_CLR);
+            printf(CLR6_CODE);
             break;
         case CLR7:
-            printf(CLR7_CLR);
+            printf(CLR7_CODE);
             break;
         case CLR8:
-            printf(CLR8_CLR);
+            printf(CLR8_CODE);
             break;
     }
 }
@@ -465,7 +466,8 @@ struct State state_constructor() {
     }
     return state;
 }
-// Wrapper for state_gain_cheat that prints a message
+// Attempt to gain a cheat and print a message
+// Returns true if the cheat was gained
 bool state_attempt_gain_cheat(struct State* state, struct Cheat cheats_list[], int cheat_list_index) {
     bool gained = false;
     for (int i = 0; i < state->cheats_cap; i++) {
@@ -480,7 +482,8 @@ bool state_attempt_gain_cheat(struct State* state, struct Cheat cheats_list[], i
     return gained;
 }
 // Use a cheat - returns the index of the cheat used or -1 if not found
-// Removed the cheat from the state
+// Does not actually handle the cheat logic
+// Removes the cheat from the state
 int state_use_cheat(struct State* state, int cheat_index) {
     if (cheat_index >= state->cheats_cap) return -1;
     int at = state->cheats[cheat_index];
@@ -538,7 +541,7 @@ void state_print_status(struct State *state, bool trunc) {
 // Loot box
 //
 // Open a loot box
-void loot_box(struct State *state, struct Cheat cheats_list[]) {
+void loot_box_screen(struct State *state, struct Cheat cheats_list[]) {
     clear_screen("Loot Box");
     printfc(CLR3, "You got a loot box!\n");
     int cheat_list_index = rand() % CHEATS_AMT;
@@ -636,7 +639,8 @@ void match_start(struct State *state, struct Match *match) {
     print_div();
 }
 // End a match
-void match_end(struct Match *match, struct State *state, struct Cheat cheats_list[], int won, char msg[]) { // won = 2 == draw
+// TODO: should not include initial subtitle
+void match_end_screen(struct Match *match, struct State *state, struct Cheat cheats_list[], int won, char msg[]) { // won = 2 == draw
     print_subtitle(CLR2, "Match Ended");
     to_continue();
     // Update gold
@@ -681,39 +685,39 @@ void match_end(struct Match *match, struct State *state, struct Cheat cheats_lis
     to_continue();
     // Get new cheat
     if ( won == 1) {
-        loot_box(state, cheats_list);
+        loot_box_screen(state, cheats_list);
     }
     match->ended = true;
 }
 // Check if the match has ended
 void match_check(struct Match *match, struct State *state, struct Cheat cheats_list[]) {
     if (match->player_total == GOAL_NUM && match->opponent_total == GOAL_NUM) {
-        match_end(match, state, cheats_list, 2, "Both slammed it!");
+        match_end_screen(match, state, cheats_list, 2, "Both slammed it!");
     }
     else if (match->player_total == GOAL_NUM) {
-        match_end(match, state, cheats_list, 1, "Player slammed it!");
+        match_end_screen(match, state, cheats_list, 1, "Player slammed it!");
     }
     else if (match->opponent_total == GOAL_NUM) {
-        match_end(match, state, cheats_list, 0, "Opponent slammed it!");
+        match_end_screen(match, state, cheats_list, 0, "Opponent slammed it!");
     }
     else if (match->player_total > GOAL_NUM && match->opponent_total > GOAL_NUM) {
-        match_end(match, state, cheats_list, 2, "Both bust!");
+        match_end_screen(match, state, cheats_list, 2, "Both bust!");
     }
     else if (match->opponent_total > GOAL_NUM) {
-        match_end(match, state, cheats_list, 1, "Opponent busts!");
+        match_end_screen(match, state, cheats_list, 1, "Opponent busts!");
     }
     else if (match->player_total > GOAL_NUM) {
-        match_end(match, state, cheats_list, 0, "Player busts!");
+        match_end_screen(match, state, cheats_list, 0, "Player busts!");
     }
     else if (match->player_held && match->opponent_held) {
         if (match->player_total == match->opponent_total) {
-            match_end(match, state, cheats_list, 2, "Even scores!");
+            match_end_screen(match, state, cheats_list, 2, "Even scores!");
         }
         else if (match->player_total > match->opponent_total) {
-            match_end(match, state, cheats_list, 1, "Player wins with a higher score!");
+            match_end_screen(match, state, cheats_list, 1, "Player wins with a higher score!");
         } 
         else {
-            match_end(match, state, cheats_list, 0, "Opponent wins with a higher score!");
+            match_end_screen(match, state, cheats_list, 0, "Opponent wins with a higher score!");
         }
     }
 }
@@ -788,7 +792,7 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
         print_subtitle(CLR3, "Encounter: lost loot box!");
         printfc(CLR1, "After the last match you found\na lost loot box in the dust!\n");
         to_continue();
-        loot_box(state, cheats_list);
+        loot_box_screen(state, cheats_list);
     }
     if (rand() % 1 == 0) {
         print_subtitle(CLR3, "Encounter: hacker vendor!");
@@ -849,7 +853,7 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                     printfc(CLR4, "You ask to purchase a loot box\n");
                     if (state->gold >= 10) {
                         state->gold -= 10;
-                        loot_box(state, cheats_list);
+                        loot_box_screen(state, cheats_list);
                     }
                     else {
                         printfc(CLR2, "But you dont have enough gold! (missing: %d)\n", 2 - state->gold);
@@ -956,7 +960,7 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
         printfc(CLR1, "After the last match you come across\na patron hacker who likes the way you play!\n");
         printfc(CLR1, "They give you a loot box!\n");
         to_continue();
-        loot_box(state, cheats_list);
+        loot_box_screen(state, cheats_list);
     }
     if (rand() % 5 == 0) {
         print_subtitle(CLR2, "Encounter: thief!");
@@ -992,7 +996,7 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
     }
 }
 //
-// Screens
+// Misc Screens
 //
 void welcome_screen() {
     clear_screen("WELCOME");
@@ -1237,9 +1241,9 @@ int main() {
     struct Cheat cheats_list[1024];
     cheats_list_init(cheats_list);
     // Gain some cheats
-    loot_box(&state, cheats_list);
-    loot_box(&state, cheats_list);
-    loot_box(&state, cheats_list);
+    loot_box_screen(&state, cheats_list);
+    loot_box_screen(&state, cheats_list);
+    loot_box_screen(&state, cheats_list);
     // Intro
     intro_screen();
     // Start first match
