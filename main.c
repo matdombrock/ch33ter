@@ -484,7 +484,6 @@ int state_count_cheats(struct State *state) {
 }
 void state_print_cheats(struct State *state, struct Cheat cheats_list[]) {
     for (int i = 0; i < state->cheats_cap; i++) {
-        // if (state->cheats[i] != -1) printfc(CLR1, "%d.%s \n", i, cheats_list[state->cheats[i]].name);
         printfc(CLR1, "%d. ", i + 1);
         if (state->cheats[i] != -1) {
             cheat_print(&cheats_list[state->cheats[i]]);
