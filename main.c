@@ -1020,9 +1020,9 @@ void intro_screen() {
     printfc(CLR4, "You have been given some cheats to start with\n");
     printfc(CLR3, "-  use these cheats to help you win matches\n");
     printfc(CLR3, "-  gain more cheats by winning matches\n");
-    printfc(CLR3, "-  inspect your cheats at any time by pressing");
+    printfc(CLR3, "-  inspect your cheats by pressing");
     printfc(CLR6, " %c\n", CMD_CHEAT_LIST);
-    printfc(CLR3, "-  inspect your opponent at any time by pressing");
+    printfc(CLR3, "-  inspect your opponent by pressing");
     printfc(CLR6, " %c\n", CMD_OPPONENT);
     printfc(CLR3, "-  roll by pressing");
     printfc(CLR6, " %c\n", CMD_ROLL);
