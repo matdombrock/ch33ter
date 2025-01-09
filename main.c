@@ -497,7 +497,7 @@ void state_print_cheats(struct State *state, struct Cheat cheats_list[]) {
 }
 // Simple prints ensure color
 void state_print_gold(struct State *state) {
-    printfc(CLR4, "Gold: %d\n", state->gold);
+    printfc(CLR4, "Your Gold: %d\n", state->gold);
 }
 void state_print_scanner_lvl(struct State *state) {
     printfc(CLR3, "Scanner LVL: %d/%d\n", state->scanner_lvl, SCAN_LVL_MAX);
@@ -606,6 +606,7 @@ void match_start(struct State *state, struct Match *match) {
     print_div();
     print_subtitle(CLR2, "Match Started");
     match_print_opponent(state, match);
+    state_print_gold(state);
     print_div();
 }
 struct Match match_new(struct State *state) {
@@ -757,7 +758,7 @@ void coin_flip(int amt, struct State *state) {
 void random_encounters(struct State *state, struct Cheat cheats_list[]) {
     if (rand() % 3 == 0) {
         print_subtitle(CLR3, "Encounter: lost loot box!");
-        printfc(CLR1, "After the last match you found\nan lost loot box in the dust!\n");
+        printfc(CLR1, "After the last match you found\na lost loot box in the dust!\n");
         to_continue();
         loot_box(state, cheats_list);
     }
@@ -790,13 +791,13 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
             cheat_print(&cheats_list[cheat_index[2]]);
             printfc(CLR1, "4. $%d - ", cheat_price[3]);
             cheat_print(&cheats_list[cheat_index[3]]);
-            printfc(CLR1, "5. $2 - loot box\n");
+            printfc(CLR1, "5. $10 - loot box\n");
             printfc(CLR1, "6. $10 - Upgrade scanner\n");
             printfc(CLR1, "7. $15 - Upgrade cheat slots\n");
             printfc(CLR1, "8. $1 - Coin flip\n");
             printfc(CLR1, "9. $10 - Coin flip\n");
             printfc(CLR1, "0. Sell Cheats\n");
-            printfc(CLR2, "Press %c to exit\n", CMD_QUIT);
+            printfc(CLR2, "\nPress %c to exit\n", CMD_QUIT);
             char input = get_input();
             printfc(CLR1, "%c\n", input);
             switch(input) {
@@ -818,17 +819,16 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                 case '5':
                     clear_screen("Purchase");
                     printfc(CLR4, "You ask to purchase a loot box\n");
-                    if (state->gold >= 2) {
-                        state->gold -= 2;
+                    if (state->gold >= 10) {
+                        state->gold -= 10;
                         loot_box(state, cheats_list);
                     }
                     else {
                         printfc(CLR2, "But you dont have enough gold! (missing: %d)\n", 2 - state->gold);
+                        print_div();
+                        state_print_gold(state);
+                        to_continue();
                     }
-                    print_div();
-                    state_print_cheats(state, cheats_list);
-                    state_print_gold(state);
-                    to_continue();
                     break;
                 case '6':
                     clear_screen("Scanner Upgrade");
@@ -839,7 +839,7 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                     else if (state->gold >= 10) {
                         state->gold -= 10;
                         state->scanner_lvl++;
-                        printfc(CLR8, "Scanner upgraded!");
+                        printfc(CLR8, "Scanner upgraded!\n");
                     }
                     else {
                         printfc(CLR2, "But you dont have enough gold! (missing: %d)\n", 10 - state->gold);
@@ -857,7 +857,7 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                     else if (state->gold >= 15) {
                         state->gold -= 15;
                         state->cheats_cap++;
-                        printfc(CLR8, "Cheat slots upgraded!");
+                        printfc(CLR8, "Cheat slots upgraded!\n");
                     }
                     else {
                         printfc(CLR2, "But you dont have enough gold! (missing: %d)\n", 15 - state->gold);
@@ -877,10 +877,12 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                     printfc(CLR4, "You ask to sell cheats\n");
                     state_print_cheats(state, cheats_list);
                     printfc(CLR4, "Which cheat would you like to sell?\n");
+                    printfc(CLR2, "\nPress %c to exit\n", CMD_QUIT);
                     char slotc = get_input();
+                    if (slotc == CMD_QUIT) break;
                     clear_screen("Selling");
                     int slot = slotc - '0';// offset by ascii
-                    int price = rand() % (MAX_PRICE / 2) + 1;
+                    int price = rand() % (MAX_PRICE / 3) + 1;
                     if (slot >= 0 && slot < state->cheats_cap) {
                         if (state->cheats[slot - 1] != -1) {
                             printfc(CLR4, "You sold: ");
@@ -902,12 +904,11 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                 default:
                     clear_screen("Invalid Input");
                     printfc(CLR2, "Input not recognized\n");
-                    printfc(CLR3, "Press %c at vendor screen to quit\n", CMD_QUIT);
+                    printfc(CLR3, "\nPress %c at vendor screen to quit\n", CMD_QUIT);
                     to_continue();
                     break;
             }
         }
-        to_continue();
     }
     if (rand() % 5 == 0) {
         print_subtitle(CLR3, "Encounter: patron!");
@@ -981,7 +982,7 @@ void intro_screen() {
     clear_screen("Intro");
     printfc(CLR4, "You have been given some cheats to start with\n");
     printfc(CLR3, "-  use these cheats to help you win matches\n");
-    printfc(CLR3, "-  also gain more cheats by winning matches\n");
+    printfc(CLR3, "-  gain more cheats by winning matches\n");
     printfc(CLR3, "-  inspect your cheats at any time by pressing");
     printfc(CLR6, " %c\n", CMD_CHEAT_LIST);
     printfc(CLR3, "-  inspect your opponent at any time by pressing");
