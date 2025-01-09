@@ -186,7 +186,7 @@ struct Cheat {
     bool match_low;
 };
 // Create a new cheat
-struct Cheat cheat_constructor(char name[32]) {
+struct Cheat cheat_constructor(char name[]) {
     struct Cheat cheat;
     strcpy(cheat.name, name);
     cheat.affects = 0;
