@@ -1,5 +1,8 @@
 {
     "cSpell.words": [
         "printfc"
-    ]
+    ],
+    "files.associations": {
+        "input.h": "c"
+    }
 }

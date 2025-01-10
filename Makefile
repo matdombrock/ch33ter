@@ -1,11 +1,11 @@
 # Compiler
-CC = gcc
+CC = clang
 
 # Compiler flags
 CFLAGS = -Wall -Werror -std=c99
 
 # Source files
-SRCS = main.c
+SRCS = ./src/main.c
 
 # Output directory and executable
 OUT_DIR = ./out
