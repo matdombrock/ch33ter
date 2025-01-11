@@ -61,8 +61,6 @@ void cheat_print(struct Cheat *cheat) {
 //
 // Cheats list
 //
-#define GOAL_NUM_H (GOAL_NUM / 2)
-#define CHEATS_AMT ((15 * GOAL_NUM) + (9 * GOAL_NUM_H))
 // Initialize the cheats list with all possible cheats
 void cheats_list_init(struct Cheat *cheats_list) {
     int off = 0;

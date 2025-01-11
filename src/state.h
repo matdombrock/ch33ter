@@ -3,23 +3,25 @@
 //
 struct State {
     int gold;
-    int cheats[MAX_CHEATS];
-    int cheats_cap;
+    int cheats[MAX_CHEAT_SLOTS];
+    int cheat_slots;
     int scanner_lvl;
     int wins;
     int losses;
     int draws;
+    char username[1024];
+    char password[1024];
 };
 // Create a new state
 struct State state_constructor() {
     struct State state;
     state.gold = STARTING_GOLD;
-    state.cheats_cap = 4;
+    state.cheat_slots = STARTING_CHEAT_SLOTS;
+    state.scanner_lvl = STARTING_SCANNER_LVL;
     state.wins = 0;
     state.losses = 0;
     state.draws = 0;
-    state.scanner_lvl = 0;
-    for (int i = 0; i < MAX_CHEATS; i++) {
+    for (int i = 0; i < MAX_CHEAT_SLOTS; i++) {
         state.cheats[i] = -1;
     }
     return state;
@@ -28,7 +30,7 @@ struct State state_constructor() {
 // Returns true if the cheat was gained
 bool state_attempt_gain_cheat(struct State* state, struct Cheat cheats_list[], int cheat_list_index) {
     bool gained = false;
-    for (int i = 0; i < state->cheats_cap; i++) {
+    for (int i = 0; i < state->cheat_slots; i++) {
         if (state->cheats[i] == -1) {
             gained = true;
             state->cheats[i] = cheat_list_index;
@@ -43,7 +45,7 @@ bool state_attempt_gain_cheat(struct State* state, struct Cheat cheats_list[], i
 // Does not actually handle the cheat logic
 // Removes the cheat from the state
 int state_use_cheat(struct State* state, int cheat_index) {
-    if (cheat_index >= state->cheats_cap) return -1;
+    if (cheat_index >= state->cheat_slots) return -1;
     int at = state->cheats[cheat_index];
     if (at == -1) return -1;
     state->cheats[cheat_index] = -1;
@@ -52,14 +54,14 @@ int state_use_cheat(struct State* state, int cheat_index) {
 // Count the number of cheats in the state
 int state_count_cheats(struct State *state) {
     int count = 0;
-    for (int i = 0; i < MAX_CHEATS; i++) {
+    for (int i = 0; i < MAX_CHEAT_SLOTS; i++) {
         if (state->cheats[i] != -1) count++;
     }
     return count;
 }
 // Print the cheats in the state
 void state_print_cheats(struct State *state, struct Cheat cheats_list[]) {
-    for (int i = 0; i < state->cheats_cap; i++) {
+    for (int i = 0; i < state->cheat_slots; i++) {
         printfc(CLR1, "%d. ", i + 1);
         if (state->cheats[i] != -1) {
             cheat_print(&cheats_list[state->cheats[i]]);
@@ -77,11 +79,11 @@ void state_print_gold(struct State *state) {
 void state_print_scanner_lvl(struct State *state) {
     printfc(CLR3, "Scanner LVL: %d/%d\n", state->scanner_lvl, SCAN_LVL_MAX);
 }
-void state_print_cheats_cap(struct State *state) {
-    printfc(CLR5, "Cheat Slots: %d/%d\n", state->cheats_cap, MAX_CHEATS);
+void state_print_cheat_slots(struct State *state) {
+    printfc(CLR5, "Cheat Slots: %d/%d\n", state->cheat_slots, MAX_CHEAT_SLOTS);
 }
 void state_print_open_cheat_slots(struct State *state) {
-    printfc(CLR5, "Open Cheat Slots: %d\n", state->cheats_cap - state_count_cheats(state));
+    printfc(CLR5, "Open Cheat Slots: %d\n", state->cheat_slots - state_count_cheats(state));
 }
 // Print the player status 
 void state_print_status(struct State *state, bool trunc) {
@@ -91,7 +93,7 @@ void state_print_status(struct State *state, bool trunc) {
     printfc(CLR8, " T: %d\n", state->wins + state->losses + state->draws);
     state_print_gold(state);
     if (trunc) return;
-    state_print_cheats_cap(state);
+    state_print_cheat_slots(state);
     state_print_open_cheat_slots(state);
     state_print_scanner_lvl(state);
 }

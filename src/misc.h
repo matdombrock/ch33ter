@@ -1,36 +1,31 @@
 //
 // Misc
 //
+//
+void print_logo() {
+    printfc(CLR2, "       .__    ________ ________  __    \n");
+    printfc(CLR3, "  ____ |  |__ \\_____  \\\\_____  \\/  |_  ___________\n");
+    printfc(CLR4, "_/ ___\\|  |  \\  _(__  <  _(__  <   __\\/ __ \\_  __ \\\n");
+    printfc(CLR5, "\\  \\___|   Y  \\/       \\/       \\  | \\  ___/|  | \\/\n");
+    printfc(CLR6, " \\___  >___|  /______  /______  /__|  \\___  >__|   \n");
+    printfc(CLR7, "     \\/     \\/       \\/       \\/          \\/       \n");
+}
 // Return a random number between 1 and sides
 int roll_die(int sides) {
     return rand() % sides + 1;
 }
-// Opponent logic
-void opponent_turn(struct Match *match) {
-    // Greater than caution and (not aggressive or greater than player)
-    if (match->opponent_total >= (GOAL_NUM - match->opponent_caution) && (!match->trait_aggressive || match->opponent_total >= match->player_total)) {
-        printfc(CLR5, "%s holds\n", match->opponent_name);
-        match->opponent_held = true;
-        return;
-    }
-    int roll = roll_die(match->die_sides);
-    match->opponent_total += roll;
-    match->opponent_held = false;
-    printfc(CLR4, "%s rolls: %d / %d\n", match->opponent_name, roll, match->die_sides);
-}
-#define MAX_PRICE 33
 // Purchase from the vendor
 void vendor_purchase(struct State *state, struct Cheat cheats_list[], int *cheat_index, int *cheat_price) {
     clear_screen("Purchasing");
     printfc(CLR4, "You ask to purchase %s\n", cheats_list[cheat_index[0]].name);
-    if (state_count_cheats(state) >= state->cheats_cap) {
+    if (state_count_cheats(state) >= state->cheat_slots) {
         printfc(CLR2, "But you have no more cheat slots available!\n");
     }
     else if (state->gold >= cheat_price[0]) {
         state->gold -= cheat_price[0];
         state_attempt_gain_cheat(state, cheats_list, cheat_index[0]);
         cheat_index[0] = rand() % CHEATS_AMT;
-        cheat_index[0] = rand() % MAX_PRICE + 1;
+        cheat_index[0] = rand() % MAX_SHOP_PRICE + 1;
     }
     else {
         printfc(CLR2, "But you dont have enough gold! (missing: %d)\n", cheat_price[0] - state->gold);

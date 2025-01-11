@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdarg.h> // va_list, va_start, va_end
@@ -17,6 +16,7 @@
 #include "loot_box.h"
 #include "match.h"
 #include "misc.h"
+#include "opponent_turn.h"
 #include "random_encounters.h"
 #include "misc_screens.h"
 #include "commands.h"
@@ -25,13 +25,10 @@
 // Main
 //
 int main() {
-    // Setup RNG
-    int seed = time(NULL);
-    srand(seed);
     // Setup basic game state
     struct State state = state_constructor();
     // Welcome
-    welcome_screen();
+    welcome_screen(&state);
     // Setup cheats
     struct Cheat cheats_list[1024];
     cheats_list_init(cheats_list);
@@ -93,12 +90,19 @@ int main() {
                 cmd_help();
                 break;
             case CMD_QUIT:
-                run = 0;
-                break;
+                printfc(CLR8, "You really want to quit?\n");
+                printfc(CLR3, "Press %c to confirm\n", CMD_QUIT);
+                char input = get_input();
+                if (input == CMD_QUIT) { 
+                    printfc(CLR8, "player quit!\n");
+                    run = 0;
+                    break;
+                }
             default:
                 printfc(CLR2, "Invalid input\n");
                 printfc(CLR3, "Press %c for help\n", CMD_HELP);
         }
+        if (run == 0) break;
         // Show match info
         match_print(&match);
         state_print_gold(&state);

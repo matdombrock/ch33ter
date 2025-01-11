@@ -3,10 +3,10 @@
 //
 void cmd_roll(struct Match *match) {
     clear_screen("Roll");
-    int roll = roll_die(match->die_sides);
+    int roll = roll_die(match->opponent.die_sides);
     match->player_total += roll;
     match->turn++;
-    printfc(CLR4, "player rolls: %d / %d\n", roll, match->die_sides);
+    printfc(CLR4, "player rolls: %d / %d\n", roll, match->opponent.die_sides);
     opponent_turn(match);
     match->player_held = false;
 }

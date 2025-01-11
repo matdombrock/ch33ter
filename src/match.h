@@ -1,20 +1,24 @@
 //
 // Match
 //
-struct Match {
-    int player_total;
-    int opponent_total;
-    int opponent_caution;
-    int turn;
+struct Opponent {
+    char name[64];
+    int caution;
     int die_sides;
-    bool player_held;
-    bool opponent_held;
+    bool is_boss;
     bool trait_aggressive;
     bool trait_clever;
     bool trait_cheater;
     bool trait_high_stakes;
+};
+struct Match {
+    int player_total;
+    int opponent_total;
+    int turn;
+    bool player_held;
+    bool opponent_held;
     bool ended;
-    char opponent_name[64];
+    struct Opponent opponent;
 };
 // Print the score bar
 void match_print_score_bar(int total) {
@@ -34,20 +38,57 @@ void match_print_score_bar(int total) {
 }
 // Print the opponent info
 void match_print_opponent(struct State *state, struct Match *match) {
-    printfc(CLR6, "Opponent: %s\n", match->opponent_name);
-    printfc(CLR5, "⚄⚀ Die sides: %d\n", match->die_sides);
-    if (state->scanner_lvl == 0) {
-        printfc(CLR5, "㊋ Aggressive: ¿¿¿\n");
-        printfc(CLR5, "㈫ Caution: ¿¿¿ (holds at ¿¿¿) \n");
-    }
-    if (state->scanner_lvl == 1) {
-        printfc(CLR5, "㊋ Aggressive: %s\n", match->trait_aggressive ? "✓" : "X");
-        printfc(CLR5, "㈫ Caution: %d (holds at ¿¿¿) \n", match->opponent_caution);
+    printfc(CLR6, "Opponent: %s\n", match->opponent.name);
+    printfc(CLR5, "⚄⚀ Die sides: %d\n", match->opponent.die_sides);
+    char unknown[] = "?";
+    char yes[] = "X";
+    char no[] = "0";
+    char aggressive[8];
+    strcpy(aggressive, unknown);
+    char clever[8];
+    strcpy(clever, unknown);
+    char cheater[8];
+    strcpy(cheater, unknown);
+    char high_stakes[8];
+    strcpy(high_stakes, unknown);
+    char caution[8];
+    strcpy(caution, unknown);
+    char caution_hold[8];
+    strcpy(caution_hold, unknown);
+    enum Color unknown_color = CLR8;
+    enum Color yes_color = CLR2;
+    enum Color no_color = CLR3;
+    enum Color aggressive_color = unknown_color;
+    enum Color clever_color = unknown_color;
+    enum Color cheater_color = unknown_color;
+    enum Color high_stakes_color = unknown_color;
+    if (state->scanner_lvl >= 0) {
+        high_stakes_color = (match->opponent.trait_high_stakes ?  yes_color : no_color);
+        strcpy(high_stakes, (match->opponent.trait_high_stakes ?  yes : no));
     }
     if (state->scanner_lvl >= 1) {
-        printfc(CLR5, "㊋ Aggressive: %s\n", match->trait_aggressive ? "✓" : "X");
-        printfc(CLR5, "㈫ Caution: %d (holds at %d) \n", match->opponent_caution, GOAL_NUM - match->opponent_caution);
+        clever_color = (match->opponent.trait_clever ?  yes_color : no_color);
+        strcpy(clever, (match->opponent.trait_clever ?  yes : no));
     }
+    if (state->scanner_lvl >= 2) {
+        cheater_color = (match->opponent.trait_cheater ?  yes_color : no_color);
+        strcpy(cheater, (match->opponent.trait_cheater ?  yes : no));
+    }
+    if (state->scanner_lvl >= 3) {
+        aggressive_color = (match->opponent.trait_aggressive ?  yes_color : no_color);
+        strcpy(aggressive, (match->opponent.trait_aggressive ?  yes : no));
+    }
+    if (state->scanner_lvl >= 4) {
+        sprintf(caution, "%d", match->opponent.caution);
+    }
+    if (state->scanner_lvl >= 5) {
+        sprintf(caution_hold, "%d", GOAL_NUM - match->opponent.caution); 
+    }
+    printfc(high_stakes_color, "㊋ Hi-Stakes: %s | ", high_stakes);
+    printfc(clever_color, "㈫ Clever: %s \n", clever);
+    printfc(cheater_color,     "㊋ Cheater: %s   | ", cheater);
+    printfc(aggressive_color, "㈫ Aggressive: %s \n", aggressive);
+    printfc(CLR5, "㈫ Caution: %s (Usually holds at %s) \n", caution, caution_hold);
     printfc(CLR3, "Scanned with: Scanner LVL%d\n", state->scanner_lvl);
 }
 // Print the match info
@@ -56,7 +97,7 @@ void match_print(struct Match *match) {
     printfc(CLR5, "player total: %d\n", match->player_total);
     match_print_score_bar(match->player_total);
     printf("\n");
-    printfc(CLR7, "%s total: %d\n", match->opponent_name, match->opponent_total);
+    printfc(CLR7, "%s total: %d\n", match->opponent.name, match->opponent_total);
     match_print_score_bar(match->opponent_total);
     printf("\n");
     print_div();
@@ -66,18 +107,31 @@ void match_print(struct Match *match) {
 void match_start(struct State *state, struct Match *match) {
     match->player_total = 0;
     match->opponent_total = 0;
-    match->opponent_caution = rand() % 11;
     match->turn = 0;
-    match->die_sides = (rand() % (GOAL_NUM -3)) + 3;
+    match->opponent.die_sides = (rand() % (GOAL_NUM -3)) + 3;
     match->player_held = false;
     match->opponent_held = false;
-    match->trait_aggressive = rand() % 4 == 0;
-    match->trait_clever = rand() % 4 == 0;
-    match->trait_cheater = rand() % 4 == 0;
-    match->trait_high_stakes = rand() % 4 == 0;
+    match->opponent.is_boss = false;
+    match->opponent.caution = rand() % (GOAL_NUM / 2);
+    match->opponent.trait_aggressive = rand() % 4 == 0;
+    match->opponent.trait_clever = rand() % 4 == 0;
+    match->opponent.trait_cheater = rand() % 4 == 0;
+    match->opponent.trait_high_stakes = rand() % 4 == 0;
     match->ended = false;
-    strcpy(match->opponent_name, "OpponentX");
-    opponent_name_rand(match->opponent_name);
+    opponent_name_rand(match->opponent.name);
+    // Boss
+    if (state->wins >= 7 && rand() % CHANCE_BOSS == 0) {
+        char boss_name[64];
+        sprintf(boss_name, "㊋ mega %s ㊋", match->opponent.name);
+        strcpy(match->opponent.name, boss_name);
+        match->opponent.is_boss = true;
+        match->opponent.die_sides = GOAL_NUM / 10;
+        match->opponent.caution = 1;
+        match->opponent.trait_aggressive = true;
+        match->opponent.trait_clever = true;
+        match->opponent.trait_cheater = true;
+        match->opponent.trait_high_stakes = true;
+    }
     print_div();
     print_subtitle(CLR2, "Match Started");
     match_print_opponent(state, match);
@@ -103,6 +157,12 @@ void match_end_screen(struct Match *match, struct State *state, struct Cheat che
             gained -= 2;
         }
     }
+    if (match->opponent.trait_high_stakes) {
+        gained *= 2;
+    }
+    if (match->opponent.is_boss) {
+        gained *= 3;
+    }
     state->gold += gained;
     // Update match record
     if (won == 0) state->losses++;
@@ -127,6 +187,7 @@ void match_end_screen(struct Match *match, struct State *state, struct Cheat che
     if (gained == 0) printfc(CLR1, "// Gained no gold\n");
     if (gained > 0) printfc(CLR4, "++ Gained %d gold\n", gained);
     if (gained < 0) printfc(CLR2, "-- Lost %d gold\n", -gained);
+    if (match->opponent.trait_high_stakes) printfc(CLR4, "(Match was HI-STAKES)\n");
     state_print_status(state, 1);
     to_continue();
     // Get new cheat

@@ -20,6 +20,12 @@ char get_input() {
     }
     return input;
 }
+void get_input_string(char text[], char *input) {
+    printfc(CLR8, "%s", text);
+    scanf("%s", input);
+    // clear the buffer
+    while(getchar() != '\n');
+}
 // Press any key to continue
 void to_continue() {
     // Wait for user input

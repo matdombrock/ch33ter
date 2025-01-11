@@ -1,15 +1,25 @@
 //
 // Misc Screens
 //
-void welcome_screen() {
+void welcome_screen(struct State *state) {
+    clear_screen("SIGN IN");
+    print_logo();
+    get_input_string("new username: ", state->username);
+    clear_screen("SIGN IN");
+    print_logo();
+    get_input_string("new password: ", state->password);
+    int password_sum = 0;
+    for (int i = 0; i < strlen(state->username); i++) {
+        password_sum += state->username[i];
+    }
+    for (int i = 0; i < strlen(state->password); i++) {
+        password_sum += state->password[i];
+    }
+    // Set the random seed
+    srand(password_sum);
     clear_screen("WELCOME");
-    printfc(CLR2, "       .__    ________ ________  __    \n");
-    printfc(CLR3, "  ____ |  |__ \\_____  \\\\_____  \\/  |_  ___________\n");
-    printfc(CLR4, "_/ ___\\|  |  \\  _(__  <  _(__  <   __\\/ __ \\_  __ \\\n");
-    printfc(CLR5, "\\  \\___|   Y  \\/       \\/       \\  | \\  ___/|  | \\/\n");
-    printfc(CLR6, " \\___  >___|  /______  /______  /__|  \\___  >__|   \n");
-    printfc(CLR7, "     \\/     \\/       \\/       \\/          \\/       \n");
-
+    print_logo();
+    printfc(CLR1, "Hello %s (#%d)!\n", state->username, password_sum);
     printfc(CLR1, "You will be challenged in a game something\nlike what you might call '21'.\n");
     printfc(CLR1, "Here, the goal is to reach %d without going over.\nAnd we play with custom dice!\n", GOAL_NUM);
     printfc(CLR1, "Your opponents will be many. Some will be\nstrong some will be weak.\n");

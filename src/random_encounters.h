@@ -2,13 +2,13 @@
 // Handle random encounters
 //
 void random_encounters(struct State *state, struct Cheat cheats_list[]) {
-    if (rand() % 3 == 0) {
+    if (rand() % CHANCE_LOOT == 0) {
         print_subtitle(CLR3, "Encounter: lost loot box!");
         printfc(CLR1, "After the last match you found\na lost loot box in the dust!\n");
         to_continue();
         loot_box_screen(state, cheats_list);
     }
-    if (rand() % 1 == 0) {
+    if (rand() % CHANCE_VENDOR == 0) {
         print_subtitle(CLR3, "Encounter: hacker vendor!");
         printfc(CLR1, "After the last match you come across\na hacker who is willing to trade cheats for gold!\n");
         to_continue();
@@ -18,12 +18,17 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
         cheat_index[2] = rand() % CHEATS_AMT;
         cheat_index[3] = rand() % CHEATS_AMT;
         int cheat_price[4];
-        cheat_price[0] = rand() % MAX_PRICE + 1;
-        cheat_price[1] = rand() % MAX_PRICE + 1;
-        cheat_price[2] = rand() % MAX_PRICE + 1;
-        cheat_price[3] = rand() % MAX_PRICE + 1;
+        cheat_price[0] = rand() % MAX_SHOP_PRICE + 1;
+        cheat_price[1] = rand() % MAX_SHOP_PRICE + 1;
+        cheat_price[2] = rand() % MAX_SHOP_PRICE + 1;
+        cheat_price[3] = rand() % MAX_SHOP_PRICE + 1;
         bool in_shop = 1;
         while(in_shop) {
+            // update prices
+            int scanner_price = 10 * state->scanner_lvl;
+            int cheat_slots_price = 15 * state->cheat_slots;
+            if (state->scanner_lvl >= SCAN_LVL_MAX) scanner_price = 999999;
+            if (state->cheat_slots >= MAX_CHEAT_SLOTS) cheat_slots_price = 999999;
             clear_screen("Hacker Vendor");
             state_print_gold(state);
             state_print_open_cheat_slots(state);
@@ -38,8 +43,8 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
             printfc(CLR1, "4. $%d - ", cheat_price[3]);
             cheat_print(&cheats_list[cheat_index[3]]);
             printfc(CLR1, "5. $10 - loot box\n");
-            printfc(CLR1, "6. $10 - Upgrade scanner\n");
-            printfc(CLR1, "7. $15 - Upgrade cheat slots\n");
+            printfc(CLR1, "6. $%d - Upgrade scanner\n", scanner_price);
+            printfc(CLR1, "7. $%d - Upgrade cheat slots\n", cheat_slots_price);
             printfc(CLR1, "8. $1 - Coin flip\n");
             printfc(CLR1, "9. $10 - Coin flip\n");
             printfc(CLR1, "0. Sell Cheats\n");
@@ -82,8 +87,8 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                     if (state->scanner_lvl >= SCAN_LVL_MAX) {
                         printfc(CLR2, "But your scanner is already at max level!\n");
                     }
-                    else if (state->gold >= 10) {
-                        state->gold -= 10;
+                    else if (state->gold >= scanner_price) {
+                        state->gold -= scanner_price;
                         state->scanner_lvl++;
                         printfc(CLR8, "Scanner upgraded!\n");
                     }
@@ -97,18 +102,18 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                 case '7':
                     clear_screen("Cheat Slot Upgrade");
                     printfc(CLR4, "You ask to upgrade your cheat slots\n");
-                    if (state->cheats_cap >= MAX_CHEATS) {
+                    if (state->cheat_slots >= MAX_CHEAT_SLOTS) {
                         printfc(CLR2, "But your cheat slots are already at max level!\n");
                     }
-                    else if (state->gold >= 15) {
-                        state->gold -= 15;
-                        state->cheats_cap++;
+                    else if (state->gold >= cheat_slots_price) {
+                        state->gold -= cheat_slots_price;
+                        state->cheat_slots++;
                         printfc(CLR8, "Cheat slots upgraded!\n");
                     }
                     else {
                         printfc(CLR2, "But you dont have enough gold! (missing: %d)\n", 15 - state->gold);
                     }
-                    state_print_cheats_cap(state);
+                    state_print_cheat_slots(state);
                     state_print_gold(state);
                     to_continue();
                     break;
@@ -128,8 +133,8 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                     if (slotc == CMD_QUIT) break;
                     clear_screen("Selling");
                     int slot = slotc - '0' - 1;// offset by ascii
-                    int price = rand() % (MAX_PRICE / 3) + 1;
-                    if (slot >= 0 && slot < state->cheats_cap) {
+                    int price = rand() % (MAX_SHOP_PRICE / 3) + 1;
+                    if (slot >= 0 && slot < state->cheat_slots) {
                         if (state->cheats[slot] != -1) {
                             printfc(CLR4, "You sold: ");
                             cheat_print(&cheats_list[state->cheats[slot]]);
@@ -161,7 +166,7 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
         state_print_cheats(state, cheats_list);
         to_continue();
     }
-    if (rand() % 5 == 0) {
+    if (rand() % CHANCE_PATRON == 0) {
         print_subtitle(CLR3, "Encounter: patron!");
         printfc(CLR1, "After the last match you come across\na patron who likes the way you play!\n");
         int gives = rand() % 5 + 1;
@@ -169,14 +174,14 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
         state->gold += gives;
         to_continue();
     }
-    if (rand() % 5 == 0) {
+    if (rand() % CHANCE_PATRON == 0) {
         print_subtitle(CLR3, "Encounter: patron hacker!");
         printfc(CLR1, "After the last match you come across\na patron hacker who likes the way you play!\n");
         printfc(CLR1, "They give you a loot box!\n");
         to_continue();
         loot_box_screen(state, cheats_list);
     }
-    if (rand() % 5 == 0) {
+    if (rand() % CHANCE_THIEF == 0) {
         print_subtitle(CLR2, "Encounter: thief!");
         printfc(CLR1, "After the last match you are assaulted by\na thief who looks mean!\n");
         int takes = rand() % 5 + 1;
@@ -192,11 +197,11 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
         }
         to_continue();
     }
-    if (rand() % 5 == 0) {
+    if (rand() % CHANCE_THIEF == 0) {
         print_subtitle(CLR2, "Encounter: hacking thief!");
         printfc(CLR1, "After the last match you are assaulted by\na hacking thief who looks kinda wimpy!\n");
         printfc(CLR1, "But they have some 'hitek' hacking tools!\n");
-        int slot = rand() % state->cheats_cap;
+        int slot = rand() % state->cheat_slots;
         printfc(CLR1, "They try to take the cheat in slot %d", slot + 1);
         if (state->cheats[slot] != -1) {
             printfc(CLR1, "\nand they get it!\n");
@@ -207,5 +212,32 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
             printfc(CLR1, "\nbut you have no cheats in that slot!\n");
         }
         to_continue();
+    }
+    if (rand() % CHANCE_FUZZ == 0) {
+        print_subtitle(CLR2, "Encounter: The FUZZ!");
+        printfc(CLR1, "Oh no! The Fuzz!\n");
+        printfc(CLR2, "They take all your cheats!\n");
+        for (int i = 0; i < state->cheat_slots; i++) {
+            state->cheats[i] = -1;
+        }
+        to_continue();
+        loot_box_screen(state, cheats_list);
+    }
+    // Story encounters
+    if (rand() % CHANCE_STORY == 0) {
+        print_subtitle(CLR3, "Encounter: World");
+        printfc(CLR1, "You come across a strange figure\n");
+        printfc(CLR1, "They tell you a story of a great hacker\n");
+        printfc(CLR1, "Who was able to hack the mainframe\n");
+        printfc(CLR1, "And gain access to the secret loot box\n");
+        printfc(CLR1, "But they were never seen again\n");
+        to_continue();
+    }
+    if (rand() % CHANCE_STORY == 0) {
+        print_subtitle(CLR3, "Encounter: World");
+        printfc(CLR1, "You come across a strange figure\n");
+        printfc(CLR1, "They tell you a story of a great buffalo\n");
+        to_continue();
+        loot_box_screen(state, cheats_list);
     }
 }
