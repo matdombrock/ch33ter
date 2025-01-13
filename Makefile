@@ -49,7 +49,7 @@ run: all
 
 # Clean target
 clean:
-	rm -f $(TARGET) $(WIN_CROSS_TARGET) $(LIN_CROSS_TARGET)
+	rm -rf $(OUT_DIR)
 
 # Phony targets
 .PHONY: all clean run cross-win cross-lin
