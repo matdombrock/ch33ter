@@ -1,6 +1,7 @@
 # Compiler
 CC = clang
 CROSS_CC = x86_64-w64-mingw32-gcc
+LINUX_CC = x86_64-linux-musl-gcc
 
 # Compiler flags
 CFLAGS = -Wall -Werror -std=c99
@@ -10,29 +11,35 @@ SRCS = ./src/main.c
 
 # Output directory and executable
 OUT_DIR = ./out
-TARGET = $(OUT_DIR)/main.out
-CROSS_TARGET = $(OUT_DIR)/main.exe
+TARGET = $(OUT_DIR)/macOS/ch33ter
+WIN_CROSS_TARGET = $(OUT_DIR)/win32/ch33ter.exe
+LIN_CROSS_TARGET = $(OUT_DIR)/linux/ch33ter
 
 # Build target
 all: $(TARGET)
 
-$(TARGET): $(SRCS) | $(OUT_DIR)
+$(TARGET): $(SRCS)
+	mkdir -p $(OUT_DIR)/macOS
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRCS)
 
-cross: $(CROSS_TARGET)
+cross-win: $(WIN_CROSS_TARGET)
 
-$(CROSS_TARGET): $(SRCS) | $(OUT_DIR)
-	$(CROSS_CC) $(CFLAGS) -o $(CROSS_TARGET) $(SRCS)
+$(WIN_CROSS_TARGET): $(SRCS)
+	mkdir -p $(OUT_DIR)/win32
+	$(CROSS_CC) $(CFLAGS) -o $(WIN_CROSS_TARGET) $(SRCS)
 
-init:
-	mkdir -p $(OUT_DIR)
+cross-lin: $(LIN_CROSS_TARGET)
+
+$(LIN_CROSS_TARGET): $(SRCS)
+	mkdir -p $(OUT_DIR)/linux
+	$(LINUX_CC) $(CFLAGS) -o $(LIN_CROSS_TARGET) $(SRCS)
 
 run: all
 	$(TARGET)
 
 # Clean target
 clean:
-	rm -f $(TARGET) $(CROSS_TARGET)
+	rm -f $(TARGET) $(WIN_CROSS_TARGET) $(LIN_CROSS_TARGET)
 
 # Phony targets
-.PHONY: all clean init run cross
+.PHONY: all clean run cross-win cross-lin
