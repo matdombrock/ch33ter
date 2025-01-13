@@ -53,7 +53,7 @@ void match_print_opponent(struct State *state, struct Match *match) {
     strcpy(high_stakes, unknown);
     char caution[8];
     strcpy(caution, unknown);
-    char caution_hold[8];
+    char caution_hold[16];
     strcpy(caution_hold, unknown);
     enum Color unknown_color = CLR8;
     enum Color yes_color = CLR2;
@@ -121,7 +121,7 @@ void match_start(struct State *state, struct Match *match) {
     opponent_name_rand(match->opponent.name);
     // Boss
     if (state->wins >= 7 && rand() % CHANCE_BOSS == 0) {
-        char boss_name[64];
+        char boss_name[128];
         sprintf(boss_name, "㊋ mega %s ㊋", match->opponent.name);
         strcpy(match->opponent.name, boss_name);
         match->opponent.is_boss = true;

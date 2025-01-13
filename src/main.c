@@ -5,6 +5,10 @@
 #include <stdarg.h> // va_list, va_start, va_end
 #include <ctype.h>  // toupper
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "constant.h"
 #include "_config.h"
 
@@ -25,6 +29,9 @@
 // Main
 //
 int main() {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+#endif
     // Setup basic game state
     struct State state = state_constructor();
     // Welcome
