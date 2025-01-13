@@ -1,5 +1,5 @@
 # Compiler
-CC = clang
+CC = gcc
 CROSS_CC = x86_64-w64-mingw32-gcc
 LINUX_CC = x86_64-linux-musl-gcc
 
@@ -33,6 +33,16 @@ cross-lin: $(LIN_CROSS_TARGET)
 $(LIN_CROSS_TARGET): $(SRCS)
 	mkdir -p $(OUT_DIR)/linux
 	$(LINUX_CC) $(CFLAGS) -o $(LIN_CROSS_TARGET) $(SRCS)
+
+# Dependency setup
+deps-mac:
+	xcode-select --install
+
+deps-linux:
+	sudo apt update && sudo apt install -y build-essential
+
+package: all cross-win cross-lin
+	cp README.MD $(OUT_DIR) && cd $(OUT_DIR) && zip -r ch33ter-vXXX.zip . -x "*.DS_Store"
 
 run: all
 	$(TARGET)

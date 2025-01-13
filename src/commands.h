@@ -130,7 +130,7 @@ void cmd_help() {
     printfc(CLR1, "- Each turn you may roll or hold\n");
     printfc(CLR1, "- Rolling adds to your total\n");
     printfc(CLR1, "- Holding passes your turn.\n");
-    printfc(CLR1, "- You may choose to roll again after holding");
+    printfc(CLR1, "- You may choose to roll again after holding \n");
     printfc(CLR1, "- If you go over %d you bust\n", GOAL_NUM);
     printfc(CLR1, "- If both players hold the game is over\n");
     printfc(CLR1, "- The player with the highest score wins\n");
