@@ -38,11 +38,12 @@ void match_print_score_bar(int total) {
 }
 // Print the opponent info
 void match_print_opponent(struct State *state, struct Match *match) {
+    printfc(CLR3, ">> Scanning Opponent With Scanner LVL %d/%d <<\n", state->scanner_lvl, SCAN_LVL_MAX);
     printfc(CLR6, "Opponent: %s\n", match->opponent.name);
     printfc(CLR5, "⚄⚀ Die sides: %d\n", match->opponent.die_sides);
     char unknown[] = "?";
-    char yes[] = "X";
-    char no[] = "0";
+    char yes[] = "Y";
+    char no[] = "N";
     char aggressive[8];
     strcpy(aggressive, unknown);
     char clever[8];
@@ -55,7 +56,7 @@ void match_print_opponent(struct State *state, struct Match *match) {
     strcpy(caution, unknown);
     char caution_hold[16];
     strcpy(caution_hold, unknown);
-    enum Color unknown_color = CLR8;
+    enum Color unknown_color = CLR1;
     enum Color yes_color = CLR2;
     enum Color no_color = CLR3;
     enum Color aggressive_color = unknown_color;
@@ -89,7 +90,7 @@ void match_print_opponent(struct State *state, struct Match *match) {
     printfc(cheater_color,     "㊋ Cheater: %s   | ", cheater);
     printfc(aggressive_color, "㈫ Aggressive: %s \n", aggressive);
     printfc(CLR5, "㈫ Caution: %s (Usually holds at %s) \n", caution, caution_hold);
-    printfc(CLR3, "Scanned with: Scanner LVL%d\n", state->scanner_lvl);
+    print_div();
 }
 // Print the match info
 void match_print(struct Match *match) {
@@ -168,7 +169,7 @@ void match_end_screen(struct Match *match, struct State *state, struct Cheat che
     if (won == 0) state->losses++;
     if (won == 1) state->wins++;
     if (won == 2) state->draws++;
-    // Draw
+    // Draw to screen
     enum Color result_colors[3] = {CLR2, CLR4, CLR5};
     enum Color result_color = result_colors[won];
     clear_screen("Match Summary");
@@ -184,11 +185,14 @@ void match_end_screen(struct Match *match, struct State *state, struct Cheat che
     printfc(result_color, "%s\n", msg);
     match_print_opponent(state, match);
     match_print(match);
+    to_continue();
+    clear_screen("Match Summary");
     if (gained == 0) printfc(CLR1, "// Gained no gold\n");
     if (gained > 0) printfc(CLR4, "++ Gained %d gold\n", gained);
     if (gained < 0) printfc(CLR2, "-- Lost %d gold\n", -gained);
     if (match->opponent.trait_high_stakes) printfc(CLR4, "(Match was HI-STAKES)\n");
     state_print_status(state, 1);
+    if (won == 1) printfc(CLR4, "You got a loot box for winning!");
     to_continue();
     // Get new cheat
     if ( won == 1) {
