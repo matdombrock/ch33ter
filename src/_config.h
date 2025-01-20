@@ -40,7 +40,7 @@
 #define CHANCE_LOOT 3
 #define CHANCE_VENDOR 5
 #define CHANCE_PATRON 5
-#define CHANCE_THIEF 5
+#define CHANCE_THIEF 8
 #define CHANCE_FUZZ 13
 #define CHANCE_STORY 33
 

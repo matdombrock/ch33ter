@@ -8,9 +8,10 @@ void welcome_screen(struct State *state) {
     printfc(CLR1, "v%s\n", VERSION);
     printfc(CLR3, "Mathieu Dombrock - GPL3\n\n");
     printfc(CLR1, "Note: Ch33ter is an offline game.\n");
-    printfc(CLR1, "It is not connected to the internet.\n");
-    printfc(CLR1, "It does not collect any data.\n");
-    printfc(CLR1, "It does not send any data.\n");
+    printfc(CLR6, "- It is not connected to the internet.\n");
+    printfc(CLR6, "- It does not collect any data.\n");
+    printfc(CLR6, "- It does not send any data.\n");
+    printfc(CLR1, "The 'login' data is used to generate an\nRNG seed.");
     input_to_continue();
     clear_screen("SIGN IN");
     print_logo();

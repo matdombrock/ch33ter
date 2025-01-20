@@ -191,7 +191,7 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
         }
         printfc(CLR1, "They take %d gold from you!\n", takes);
         state->gold -= takes;
-        if (state->gold < 0) {
+        if (state->gold < 1) {
             printfc(CLR1, "They feel a little bad about taking your last gold.\n");
             printfc(CLR1, "They give you one piece back!\n");
             state->gold = 1;
