@@ -1,3 +1,8 @@
+//
+// Constant
+// Modifing these values can break the game
+//
+
 // Debug
 #define DEBUG_CHEATS 0
 

@@ -16,7 +16,7 @@ struct Cheat {
     bool match_low;
 };
 // Create a new cheat
-struct Cheat cheat_constructor(char name[]) {
+struct Cheat cheat_new(char name[]) {
     struct Cheat cheat;
     strcpy(cheat.name, name);
     cheat.affects = 0;
@@ -68,7 +68,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "sh4rdx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].add = i + 1;
         cheat_sync(&cheats_list[off]);
         off++;
@@ -76,7 +76,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "mov3rx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].add = i + 1;
         cheats_list[off].affects = 2;
         cheat_sync(&cheats_list[off]);
@@ -85,7 +85,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "push3rx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].add = i + 1;
         cheats_list[off].affects = 1;
         cheat_sync(&cheats_list[off]);
@@ -95,7 +95,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "m3dx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].sub = i + 1;
         cheat_sync(&cheats_list[off]);
         off++;
@@ -103,7 +103,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "d4gg3rx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].sub = i + 1;
         cheats_list[off].affects = 1;
         cheat_sync(&cheats_list[off]);
@@ -112,7 +112,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "d1gg3rx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].sub = i + 1;
         cheats_list[off].affects = 2;
         cheat_sync(&cheats_list[off]);
@@ -122,7 +122,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "w1ndf4llx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].mult = i + 1;
         cheat_sync(&cheats_list[off]);
         off++;
@@ -130,7 +130,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "b0mbx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].mult = i + 1;
         cheats_list[off].affects = 1;
         cheat_sync(&cheats_list[off]);
@@ -139,7 +139,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "f1r3st0rmx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].mult = i + 1;
         cheats_list[off].affects = 2;
         cheat_sync(&cheats_list[off]);
@@ -149,7 +149,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "f0rg3x%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].div = i + 1;
         cheat_sync(&cheats_list[off]);
         off++;
@@ -157,7 +157,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "f41lx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].div = i + 1;
         cheats_list[off].affects = 1;
         cheat_sync(&cheats_list[off]);
@@ -166,7 +166,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "4ng3lx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].div = i + 1;
         cheats_list[off].affects = 2;
         cheat_sync(&cheats_list[off]);
@@ -176,7 +176,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "l04d3rx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].set = i + 1;
         cheat_sync(&cheats_list[off]);
         off++;
@@ -184,7 +184,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "thr0w3rx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].set = i + 1;
         cheats_list[off].affects = 1;
         cheat_sync(&cheats_list[off]);
@@ -193,7 +193,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     for (int i = 0; i < GOAL_NUM; i++) {
         char name[32];
         sprintf(name, "g1v3rx%d", i);
-        cheats_list[off] = cheat_constructor(name);
+        cheats_list[off] = cheat_new(name);
         cheats_list[off].set = i + 1;
         cheats_list[off].affects = 2;
         cheat_sync(&cheats_list[off]);
@@ -201,27 +201,27 @@ void cheats_list_init(struct Cheat *cheats_list) {
     }
     // Swap
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_constructor("5w4px");
+        cheats_list[off] = cheat_new("5w4px");
         cheats_list[off].swap = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     // Invert
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_constructor("1nvmx");
+        cheats_list[off] = cheat_new("1nvmx");
         cheats_list[off].invert = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_constructor("1nvux");
+        cheats_list[off] = cheat_new("1nvux");
         cheats_list[off].invert = 1;
         cheats_list[off].affects = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_constructor("1nvu5x");
+        cheats_list[off] = cheat_new("1nvu5x");
         cheats_list[off].invert = 1;
         cheats_list[off].affects = 2;
         cheat_sync(&cheats_list[off]);
@@ -229,20 +229,20 @@ void cheats_list_init(struct Cheat *cheats_list) {
     }
     // Reset
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_constructor("r5tmx");
+        cheats_list[off] = cheat_new("r5tmx");
         cheats_list[off].reset = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_constructor("r5tux");
+        cheats_list[off] = cheat_new("r5tux");
         cheats_list[off].reset = 1;
         cheats_list[off].affects = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_constructor("r5tusx");
+        cheats_list[off] = cheat_new("r5tusx");
         cheats_list[off].reset = 1;
         cheats_list[off].affects = 2;
         cheat_sync(&cheats_list[off]);
@@ -250,14 +250,14 @@ void cheats_list_init(struct Cheat *cheats_list) {
     }
     // Match high
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_constructor("h1m3rx");
+        cheats_list[off] = cheat_new("h1m3rx");
         cheats_list[off].match_high = 1;
         cheat_sync(&cheats_list[off]);
         off++;
     }
     // Match low
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_constructor("l0m3rx");
+        cheats_list[off] = cheat_new("l0m3rx");
         cheats_list[off].match_low = 1;
         cheat_sync(&cheats_list[off]);
         off++;

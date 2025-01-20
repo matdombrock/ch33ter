@@ -56,16 +56,16 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                     in_shop = 0;
                     break;
                 case '1':
-                    vendor_purchase(state, cheats_list, &cheat_index[0], &cheat_price[0]);
+                    vendor_purchase_screen(state, cheats_list, &cheat_index[0], &cheat_price[0]);
                     break;
                 case '2':
-                    vendor_purchase(state, cheats_list, &cheat_index[1], &cheat_price[1]);
+                    vendor_purchase_screen(state, cheats_list, &cheat_index[1], &cheat_price[1]);
                     break;
                 case '3':
-                    vendor_purchase(state, cheats_list, &cheat_index[2], &cheat_price[2]);
+                    vendor_purchase_screen(state, cheats_list, &cheat_index[2], &cheat_price[2]);
                     break;
                 case '4':
-                    vendor_purchase(state, cheats_list, &cheat_index[3], &cheat_price[3]);
+                    vendor_purchase_screen(state, cheats_list, &cheat_index[3], &cheat_price[3]);
                     break;
                 case '5':
                     clear_screen("Purchase");
@@ -118,10 +118,10 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
                     to_continue();
                     break;
                 case '8':
-                    coin_flip(1, state);
+                    coin_flip_screen(1, state);
                     break;
                 case '9':
-                    coin_flip(10, state);
+                    coin_flip_screen(10, state);
                     break;
                 case '0':
                     clear_screen("Selling");

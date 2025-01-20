@@ -2,6 +2,14 @@
 // Misc Screens
 //
 void welcome_screen(struct State *state) {
+    clear_screen("INFO");
+    print_logo();
+    printfc(CLR3, "Mathieu Dombrock - GPL3\n\n");
+    printfc(CLR1, "Note: Ch33ter is an offline game.\n");
+    printfc(CLR1, "It is not connected to the internet.\n");
+    printfc(CLR1, "It does not collect any data.\n");
+    printfc(CLR1, "It does not send any data.\n");
+    to_continue();
     clear_screen("SIGN IN");
     print_logo();
     get_input_string("new username: ", state->username);
@@ -22,7 +30,8 @@ void welcome_screen(struct State *state) {
     printfc(CLR1, "Hello %s (#%d)!\n", state->username, password_sum);
     printfc(CLR1, "You will be challenged in a game something\nlike what you might call '21'.\n");
     printfc(CLR1, "Here, the goal is to reach %d without going over.\nAnd we play with custom dice!\n", GOAL_NUM);
-    printfc(CLR1, "Your opponents will be many. Some will be\nstrong some will be weak.\n");
+    printfc(CLR1, "Your opponents will be many.");
+    printfc(CLR1, "Some will be strong some will be weak.\n");
     printfc(CLR4, "They will bring their own dice. You must account for that.\n");
     printfc(CLR5, "The best way to account for that might be cheating...\n");
     printfc(CLR1, "Good luck!\n");
@@ -64,4 +73,59 @@ void game_over_screen() {
     printfc(CLR3, "              \\/|/|/|/|/|/|/|/ \n\n");
     printfc(CLR2, "\nYou are brutally assaulted for your inability to pay your debts.\n");
     print_div();
+}
+// Open a loot box
+void loot_box_screen(struct State *state, struct Cheat cheats_list[]) {
+    clear_screen("Loot Box");
+    printfc(CLR3, "You got a loot box!\n");
+    int cheat_list_index = rand() % CHEATS_AMT;
+    state_attempt_gain_cheat(state, cheats_list, cheat_list_index);
+    cheat_print(&cheats_list[cheat_list_index]);
+    print_div();
+    printfc(CLR1, "\n");
+    state_print_cheats(state, cheats_list);
+    to_continue();
+}
+// Purchase from the vendor
+void vendor_purchase_screen(struct State *state, struct Cheat cheats_list[], int *cheat_index, int *cheat_price) {
+    clear_screen("Purchasing");
+    printfc(CLR4, "You ask to purchase %s\n", cheats_list[cheat_index[0]].name);
+    if (state_count_cheats(state) >= state->cheat_slots) {
+        printfc(CLR2, "But you have no more cheat slots available!\n");
+    }
+    else if (state->gold >= cheat_price[0]) {
+        state->gold -= cheat_price[0];
+        state_attempt_gain_cheat(state, cheats_list, cheat_index[0]);
+        cheat_index[0] = rand() % CHEATS_AMT;
+        cheat_index[0] = rand() % MAX_SHOP_PRICE + 1;
+    }
+    else {
+        printfc(CLR2, "But you dont have enough gold! (missing: %d)\n", cheat_price[0] - state->gold);
+    }
+    cheat_print(&cheats_list[cheat_index[0]]);
+    print_div();
+    state_print_cheats(state, cheats_list);
+    state_print_gold(state);
+    to_continue();
+}
+// Coin flip (gamble)
+void coin_flip_screen(int amt, struct State *state) {
+    clear_screen("Coin Flip");
+    printfc(CLR4, "You ask to flip a coin\n");
+    if (state->gold >= amt) {
+        int flip = rand() % 2;
+        if (flip == 0) {
+            printfc(CLR2, "You lost %d gold!\n", amt);
+            state->gold -= amt;
+        }
+        else {
+            printfc(CLR4, "You gained %d gold!\n", amt);
+            state->gold += amt;
+        }
+    }
+    else {
+        printfc(CLR2, "But you dont have enough gold to wager! (missing: %d)\n", amt - state->gold);
+    }
+    state_print_gold(state);
+    to_continue();
 }

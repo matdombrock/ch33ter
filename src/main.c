@@ -17,12 +17,11 @@
 #include "opponent_names.h"
 #include "cheat.h"
 #include "state.h"
-#include "loot_box.h"
-#include "match.h"
 #include "misc.h"
+#include "misc_screens.h"
+#include "match.h"
 #include "opponent_turn.h"
 #include "random_encounters.h"
-#include "misc_screens.h"
 #include "commands.h"
 
 //
@@ -33,7 +32,7 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
 #endif
     // Setup basic game state
-    struct State state = state_constructor();
+    struct State state = state_new();
     // Welcome
     welcome_screen(&state);
     // Setup cheats

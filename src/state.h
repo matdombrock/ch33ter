@@ -13,7 +13,7 @@ struct State {
     char password[1024];
 };
 // Create a new state
-struct State state_constructor() {
+struct State state_new() {
     struct State state;
     state.gold = STARTING_GOLD;
     state.cheat_slots = STARTING_CHEAT_SLOTS;

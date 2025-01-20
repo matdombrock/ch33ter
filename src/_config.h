@@ -1,3 +1,5 @@
+// Use this config.h file to set the compile-time game configuration options
+
 #define USE_RAW_INPUT 1 // Set to false to use require enter key
 #define ENABLE_COLORS 1 // Set to false to disable color printing
 #define ENABLE_BELL 1 // Set to false to disable bell sound

@@ -1,3 +1,8 @@
+//
+// Input
+// Basic cross-platform input handling
+//
+
 #ifdef _WIN32
 #include <conio.h>
 #else
