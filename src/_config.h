@@ -1,9 +1,14 @@
-// Use this config.h file to set the compile-time game configuration options
+//
+// Config
+// Use this config file to set the compile-time game configuration options
+//
 
+// General
 #define USE_RAW_INPUT 1 // Set to false to use require enter key
 #define ENABLE_COLORS 1 // Set to false to disable color printing
 #define ENABLE_BELL 1 // Set to false to disable bell sound
 
+// Command mapping
 #define CMD_ROLL 'r'
 #define CMD_HOLD 'w'
 #define CMD_CHEAT_LIST 'e'
@@ -20,6 +25,7 @@
 #define CMD_USE_CHEAT_7 '7'
 #define CMD_USE_CHEAT_8 '8'
 
+// Colors
 #define CLR1_CODE "\033[1;90m" // grey
 #define CLR2_CODE "\033[1;91m" // red
 #define CLR3_CODE "\033[1;94m" // blue
@@ -29,6 +35,7 @@
 #define CLR7_CODE "\033[1;96m" // cyan
 #define CLR8_CODE "\033[1;97m" // white
 
+// Random chances (1 in X)
 #define CHANCE_BOSS 10
 #define CHANCE_LOOT 3
 #define CHANCE_VENDOR 1
@@ -37,6 +44,7 @@
 #define CHANCE_FUZZ 13
 #define CHANCE_STORY 10
 
+// Starting values
 #define STARTING_GOLD 10
 #define STARTING_SCANNER_LVL 0
 #define STARTING_CHEAT_SLOTS 4

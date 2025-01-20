@@ -5,16 +5,21 @@
 
 #ifdef _WIN32
 #include <conio.h>
+#include <windows.h>
 #else
 #include <stdio.h>
 #include <stdlib.h>
 #endif
 
-//
-// Input
-//
+// Set console output to UTF-8 on windows
+void set_console_output(){
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+#endif
+}
+
 // Get a single character of input
-char get_input() {
+char input_get() {
     char input;
     if (USE_RAW_INPUT) {
         printfc(CLR7, "██████████████▛ Awaiting Input ▜▛ ");
@@ -37,7 +42,7 @@ char get_input() {
     return input;
 }
 
-void get_input_string(char text[], char *input) {
+void input_get_string(char text[], char *input) {
     printfc(CLR8, "%s", text);
     scanf("%s", input);
     // clear the buffer
@@ -45,7 +50,7 @@ void get_input_string(char text[], char *input) {
 }
 
 // Press any key to continue
-void to_continue() {
+void input_to_continue() {
     // Wait for user input
     printfc(CLR6, "\n\n██████████████       Press any key to continue       ██████████████\n");
 #ifdef _WIN32

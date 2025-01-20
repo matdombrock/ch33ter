@@ -1,5 +1,7 @@
 //
 // State
+// Structs and functions dealing with "state"
+// This is the main game state which persists across matches
 //
 struct State {
     int gold;

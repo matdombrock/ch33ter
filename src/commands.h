@@ -1,5 +1,6 @@
 //
 // Commands
+// These functions handle the main game commands
 //
 void cmd_roll(struct Match *match) {
     clear_screen("Roll");
@@ -96,13 +97,13 @@ void cmd_use_cheat(struct State *state, struct Match *match, int cheat_index, st
 void cmd_opponent(struct State *state, struct Match *match) {
     clear_screen("Opponent");
     match_print_opponent(state, match);
-    to_continue();
+    input_to_continue();
 }
 
 void cmd_status(struct State *state) {
     clear_screen("Status");
     state_print_status(state, 0);
-    to_continue();
+    input_to_continue();
 }
 
 void cmd_help() {
@@ -123,7 +124,7 @@ void cmd_help() {
     printfc(CLR1, "%c - use cheat slot 8\n", CMD_USE_CHEAT_8);
     printfc(CLR1, "%c - quit\n", CMD_QUIT);
     printfc(CLR1, "%c - help\n", CMD_HELP);
-    to_continue();
+    input_to_continue();
     clear_screen("Help p2");
     print_subtitle(CLR3, "Page 2/4 - Rules:");
     printfc(CLR1, "- The goal is to approach %d without exceeding it\n", GOAL_NUM);
@@ -136,7 +137,7 @@ void cmd_help() {
     printfc(CLR1, "- The player with the highest score wins\n");
     printfc(CLR1, "- If both players have the same score it's a draw\n");
     printfc(CLR1, "- If both players bust it's a draw\n");
-    to_continue();
+    input_to_continue();
     clear_screen("Help p3");
     print_subtitle(CLR3, "Page 3/4 - Cheating:"); 
     printfc(CLR1, "Cheat format:\n");
@@ -155,7 +156,7 @@ void cmd_help() {
     printfc(CLR5, "| both ");
     printfc(CLR4, "| +1 | swp \n");
     printfc(CLR1, "This cheat would add 1 to both scores and then swap them\n");
-    to_continue();
+    input_to_continue();
     clear_screen("Help p4");
     print_subtitle(CLR3, "Page 4/4 - Tips:"); 
     printfc(CLR1, "- Cheats can be used to manipulate scores\n");
@@ -169,5 +170,5 @@ void cmd_help() {
     printfc(CLR1, "- 'inv' subtracts the current score from %d\n", GOAL_NUM);
     printfc(CLR1, "- 'swp' swaps the scores (always affects both)\n");
     printfc(CLR1, "- 'rst' sets the score to 0\n");
-    to_continue();
+    input_to_continue();
 }

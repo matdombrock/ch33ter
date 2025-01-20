@@ -1,4 +1,7 @@
-// Opponent logic
+//
+// Opponent Turn
+// The logic used to determine the opponent's actions during their turn.
+//
 void opponent_turn(struct Match *match) {
     if (match->opponent.trait_cheater) {
         if (rand() % 4 == 0) {

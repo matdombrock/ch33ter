@@ -1,5 +1,6 @@
 //
 // Cheat
+// Structs and functions dealing with "cheats"
 //
 struct Cheat {
     char name[32];

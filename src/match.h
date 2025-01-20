@@ -1,5 +1,6 @@
 //
 // Match
+// Structs and functions dealing with "matches"
 //
 struct Opponent {
     char name[64];
@@ -143,7 +144,7 @@ void match_start(struct State *state, struct Match *match) {
 // TODO: should not include initial subtitle
 void match_end_screen(struct Match *match, struct State *state, struct Cheat cheats_list[], int won, char msg[]) { // won = 2 == draw
     print_subtitle(CLR2, "Match Ended");
-    to_continue();
+    input_to_continue();
     // Update gold
     int gained = 0;
     if (won == 1) {
@@ -185,7 +186,7 @@ void match_end_screen(struct Match *match, struct State *state, struct Cheat che
     printfc(result_color, "%s\n", msg);
     match_print_opponent(state, match);
     match_print(match);
-    to_continue();
+    input_to_continue();
     clear_screen("Match Summary");
     if (gained == 0) printfc(CLR1, "// Gained no gold\n");
     if (gained > 0) printfc(CLR4, "++ Gained %d gold\n", gained);
@@ -193,7 +194,7 @@ void match_end_screen(struct Match *match, struct State *state, struct Cheat che
     if (match->opponent.trait_high_stakes) printfc(CLR4, "(Match was HI-STAKES)\n");
     state_print_status(state, 1);
     if (won == 1) printfc(CLR4, "You got a loot box for winning!");
-    to_continue();
+    input_to_continue();
     // Get new cheat
     if ( won == 1) {
         loot_box_screen(state, cheats_list);

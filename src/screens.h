@@ -1,5 +1,6 @@
 //
-// Misc Screens
+// Screens
+// Various screens used in the game
 //
 void welcome_screen(struct State *state) {
     clear_screen("INFO");
@@ -9,13 +10,13 @@ void welcome_screen(struct State *state) {
     printfc(CLR1, "It is not connected to the internet.\n");
     printfc(CLR1, "It does not collect any data.\n");
     printfc(CLR1, "It does not send any data.\n");
-    to_continue();
+    input_to_continue();
     clear_screen("SIGN IN");
     print_logo();
-    get_input_string("new username: ", state->username);
+    input_get_string("new username: ", state->username);
     clear_screen("SIGN IN");
     print_logo();
-    get_input_string("new password: ", state->password);
+    input_get_string("new password: ", state->password);
     int password_sum = 0;
     for (int i = 0; i < strlen(state->username); i++) {
         password_sum += state->username[i];
@@ -35,7 +36,7 @@ void welcome_screen(struct State *state) {
     printfc(CLR4, "They will bring their own dice. You must account for that.\n");
     printfc(CLR5, "The best way to account for that might be cheating...\n");
     printfc(CLR1, "Good luck!\n");
-    to_continue();
+    input_to_continue();
 }
 void intro_screen() {
     clear_screen("Intro");
@@ -56,7 +57,7 @@ void intro_screen() {
     printfc(CLR4, "The goal is to get as high of a score as you can\nwithout going over");
     printfc(CLR4, " %d\n", GOAL_NUM);
     printfc(CLR7, "\n███ Press %c to see the help screen during a match! ██████████████\n", CMD_HELP);
-    to_continue();
+    input_to_continue();
 }
 void game_over_screen() {
     clear_screen("Game Over");
@@ -84,7 +85,7 @@ void loot_box_screen(struct State *state, struct Cheat cheats_list[]) {
     print_div();
     printfc(CLR1, "\n");
     state_print_cheats(state, cheats_list);
-    to_continue();
+    input_to_continue();
 }
 // Purchase from the vendor
 void vendor_purchase_screen(struct State *state, struct Cheat cheats_list[], int *cheat_index, int *cheat_price) {
@@ -106,7 +107,7 @@ void vendor_purchase_screen(struct State *state, struct Cheat cheats_list[], int
     print_div();
     state_print_cheats(state, cheats_list);
     state_print_gold(state);
-    to_continue();
+    input_to_continue();
 }
 // Coin flip (gamble)
 void coin_flip_screen(int amt, struct State *state) {
@@ -127,5 +128,5 @@ void coin_flip_screen(int amt, struct State *state) {
         printfc(CLR2, "But you dont have enough gold to wager! (missing: %d)\n", amt - state->gold);
     }
     state_print_gold(state);
-    to_continue();
+    input_to_continue();
 }

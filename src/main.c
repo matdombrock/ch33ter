@@ -5,32 +5,25 @@
 #include <stdarg.h> // va_list, va_start, va_end
 #include <ctype.h>  // toupper
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 #include "constant.h"
 #include "_config.h"
-
 #include "util.h"
 #include "input.h"
 #include "opponent_names.h"
 #include "cheat.h"
 #include "state.h"
-#include "misc.h"
-#include "misc_screens.h"
+#include "screens.h"
 #include "match.h"
 #include "opponent_turn.h"
 #include "random_encounters.h"
 #include "commands.h"
 
 //
-// Main
+// Main Loop
 //
 int main() {
-#ifdef _WIN32
-    SetConsoleOutputCP(CP_UTF8);
-#endif
+    // Set console output to UTF-8
+    set_console_output();
     // Setup basic game state
     struct State state = state_new();
     // Welcome
@@ -51,7 +44,7 @@ int main() {
     int run = 1;
     while(run) {
         print_div();
-        char input = get_input();
+        char input = input_get();
         switch (input) {
             case CMD_USE_CHEAT_1:
                 cmd_use_cheat(&state, &match, 0, cheats_list);
@@ -98,7 +91,7 @@ int main() {
             case CMD_QUIT:
                 printfc(CLR8, "You really want to quit?\n");
                 printfc(CLR3, "Press %c to confirm\n", CMD_QUIT);
-                char input = get_input();
+                char input = input_get();
                 if (input == CMD_QUIT) { 
                     printfc(CLR8, "player quit!\n");
                     run = 0;
