@@ -3,6 +3,8 @@
 // Modifing these values can break the game
 //
 
+#define VERSION "0.1.0"
+
 // Debug
 #define DEBUG_CHEATS 0
 

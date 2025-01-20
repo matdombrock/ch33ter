@@ -5,6 +5,7 @@
 void welcome_screen(struct State *state) {
     clear_screen("INFO");
     print_logo();
+    printfc(CLR1, "v%s\n", VERSION);
     printfc(CLR3, "Mathieu Dombrock - GPL3\n\n");
     printfc(CLR1, "Note: Ch33ter is an offline game.\n");
     printfc(CLR1, "It is not connected to the internet.\n");

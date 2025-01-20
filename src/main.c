@@ -27,6 +27,7 @@ int main() {
     // Setup basic game state
     struct State state = state_new();
     // Welcome
+    // The welcome screen will set the RNG seed based on the username and password
     welcome_screen(&state);
     // Setup cheats
     struct Cheat cheats_list[1024];

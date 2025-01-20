@@ -6,7 +6,7 @@
 // General
 #define USE_RAW_INPUT 1 // Set to false to use require enter key
 #define ENABLE_COLORS 1 // Set to false to disable color printing
-#define ENABLE_BELL 1 // Set to false to disable bell sound
+#define ENABLE_BELL 1 // Set to false to disable bell sound (must be enabled in the terminal as well)
 
 // Command mapping
 #define CMD_ROLL 'r'
@@ -38,11 +38,11 @@
 // Random chances (1 in X)
 #define CHANCE_BOSS 10
 #define CHANCE_LOOT 3
-#define CHANCE_VENDOR 1
+#define CHANCE_VENDOR 5
 #define CHANCE_PATRON 5
 #define CHANCE_THIEF 5
 #define CHANCE_FUZZ 13
-#define CHANCE_STORY 10
+#define CHANCE_STORY 33
 
 // Starting values
 #define STARTING_GOLD 10

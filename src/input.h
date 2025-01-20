@@ -21,24 +21,23 @@ void set_console_output(){
 // Get a single character of input
 char input_get() {
     char input;
-    if (USE_RAW_INPUT) {
-        printfc(CLR7, "██████████████▛ Awaiting Input ▜▛ ");
+#if USE_RAW_INPUT 
+    printfc(CLR7, "██████████████▛ Awaiting Input ▜▛ ");
 #ifdef _WIN32
-        input = _getch();
+    input = _getch();
 #else
-        system("stty raw");
-        input = getchar();
-        system("stty cooked");
+    system("stty raw");
+    input = getchar();
+    system("stty cooked");
 #endif
-        clear_screen("ch33ter");   
-    }
-    else {
-        printfc(CLR7, "██████████████▛ Awaiting Input ▜▛ ");
-        scanf("%c", &input);
-        // clear the buffer
-        while(getchar() != '\n');
-        clear_screen("ch33ter");
-    }
+    clear_screen("ch33ter");   
+#else
+    printfc(CLR7, "██████████████▛ Awaiting Input ▜▛ ");
+    scanf("%c", &input);
+    // clear the buffer
+    while(getchar() != '\n');
+    clear_screen("ch33ter");
+#endif
     return input;
 }
 
