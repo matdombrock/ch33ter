@@ -265,7 +265,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     }
     // Winners
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_new("w1nx");
+        cheats_list[off] = cheat_new("w1nrx");
         cheats_list[off].set = GOAL_NUM - 1;
         cheat_sync(&cheats_list[off]);
         off++;
@@ -279,7 +279,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
     }
     // Busters
     for (int i = 0; i < GOAL_NUM_H; i++) {
-        cheats_list[off] = cheat_new("w1nx");
+        cheats_list[off] = cheat_new("b5trx");
         cheats_list[off].affects = 1;
         cheats_list[off].set = GOAL_NUM + 1;
         cheat_sync(&cheats_list[off]);

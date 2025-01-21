@@ -13,6 +13,7 @@
 #include "cheat.h"
 #include "state.h"
 #include "screens.h"
+#include "vendor.h"
 #include "match.h"
 #include "opponent_turn.h"
 #include "random_encounters.h"

@@ -38,13 +38,18 @@
 // Random chances (1 in X)
 #define CHANCE_BOSS 10
 #define CHANCE_LOOT 3
-#define CHANCE_VENDOR 5
+#define CHANCE_VENDOR 1
 #define CHANCE_PATRON 5
 #define CHANCE_THIEF 8
 #define CHANCE_FUZZ 13
-#define CHANCE_STORY 33
+#define CHANCE_STORY 99
+
+// Vendor prices
+#define MAX_SHOP_PRICE 33
+#define SHOP_SCANNER_MULT 10
+#define SHOP_CHEAT_SLOTS_MULT 4
 
 // Starting values
 #define STARTING_GOLD 10
-#define STARTING_SCANNER_LVL 0
+#define STARTING_SCANNER_LVL 5
 #define STARTING_CHEAT_SLOTS 4
