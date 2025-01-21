@@ -18,11 +18,19 @@ void set_console_output(){
 #endif
 }
 
+void input_ck_force_quit(char input) {
+    // If esc is pressed exit
+    if (input == 27) {
+        printfc(CLR8, "force quit...\n");
+        exit(0);
+    }
+}
+
 // Get a single character of input
 char input_get() {
     char input;
 #if CFG_USE_RAW_INPUT 
-    printfc(CRL7, "██████████████▛ Awaiting Input ▜▛ ");
+    printfc(CLR7, " ▜████████████▛ Awaiting Input || ");
 #ifdef _WIN32
     input = _getch();
 #else
@@ -32,17 +40,18 @@ char input_get() {
 #endif
     clear_screen("ch33ter");   
 #else
-    printfc(CRL7, "██████████████▛ Awaiting Input ▜▛ ");
+    printfc(CLR7, " ▜████████████▛ Awaiting Input || ");
     scanf("%c", &input);
     // clear the buffer
     while(getchar() != '\n');
     clear_screen("ch33ter");
 #endif
+    input_ck_force_quit(input);
     return input;
 }
 
 void input_get_string(char text[], char *input) {
-    printfc(CRL8, "%s", text);
+    printfc(CLR8, "%s", text);
     scanf("%s", input);
     // clear the buffer
     while(getchar() != '\n');
@@ -51,13 +60,15 @@ void input_get_string(char text[], char *input) {
 // Press any key to continue
 void input_to_continue() {
     // Wait for user input
-    printfc(CRL6, "\n\n██████████████       Press any key to continue       ██████████████\n");
+    printfc(CLR6, "\n\n ▜████████████||     Press any key to continue     ||████████████▛ \n");
+    char input;
 #ifdef _WIN32
-    _getch();
+    input = _getch();
 #else
     system("stty raw");
-    getchar();
+    input = getchar();
     system("stty cooked");
 #endif
+    input_ck_force_quit(input);
     clear_screen("ch33ter");
 }

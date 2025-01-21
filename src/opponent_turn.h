@@ -5,7 +5,7 @@
 void opponent_turn(struct Match *match) {
     if (match->opponent.trait_cheater) {
         if (rand() % 4 == 0) {
-            printfc(CRL2, "%s cheats!!!\n", match->opponent.name);
+            printfc(CLR2, "%s cheats!!!\n", match->opponent.name);
             match->opponent_total = GOAL_NUM - 1;
         }
     }
@@ -23,13 +23,13 @@ void opponent_turn(struct Match *match) {
         hold = false;
     }
     if (hold) {
-        printfc(CRL5, "%s holds\n", match->opponent.name);
+        printfc(CLR5, "%s holds\n", match->opponent.name);
         match->opponent_held = true;
     }
     else { // Roll
         int roll = roll_die(match->opponent.die_sides);
         match->opponent_total += roll;
         match->opponent_held = false;
-        printfc(CRL4, "%s rolls: %d / %d\n", match->opponent.name, roll, match->opponent.die_sides);   
+        printfc(CLR4, "%s rolls: %d / %d\n", match->opponent.name, roll, match->opponent.die_sides);   
     }
 }

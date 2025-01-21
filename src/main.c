@@ -91,17 +91,17 @@ int main() {
                 cmd_help();
                 break;
             case CFG_CMD_QUIT:
-                printfc(CRL8, "You really want to quit?\n");
-                printfc(CRL3, "Press %c to confirm\n", CFG_CMD_QUIT);
+                printfc(CLR8, "You really want to quit?\n");
+                printfc(CLR3, "Press %c to confirm\n", CFG_CMD_QUIT);
                 char input = input_get();
                 if (input == CFG_CMD_QUIT) { 
-                    printfc(CRL8, "player quit!\n");
+                    printfc(CLR8, "player quit!\n");
                     run = 0;
                     break;
                 }
             default:
-                printfc(CRL2, "Invalid input\n");
-                printfc(CRL3, "Press %c for help\n", CFG_CMD_HELP);
+                printfc(CLR2, "Invalid input\n");
+                printfc(CLR3, "Press %c for help\n", CFG_CMD_HELP);
         }
         if (run == 0) break;
         // Show match info
@@ -116,10 +116,10 @@ int main() {
         }
         if (match.ended) {
             random_encounters(&state, cheats_list);
-            state.lvl = state.wins + state.losses + state.draws;
+            state.lvl = state.wins + state.losses + state.draws + 1;
             match_start(&state, &match);
         }
     }
-    printfc(CRL1, "goodbye\n");
+    printfc(CLR1, "goodbye\n");
     return 0;
 }

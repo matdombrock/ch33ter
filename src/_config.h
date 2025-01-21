@@ -26,14 +26,14 @@
 #define CFG_CMD_USE_CHEAT_8 '8'
 
 // Colors
-#define CFG_CRL1 "\033[1;90m" // grey
-#define CFG_CRL2 "\033[1;91m" // red
-#define CFG_CRL3 "\033[1;94m" // blue
-#define CFG_CRL4 "\033[1;32m" // green
-#define CFG_CRL5 "\033[1;33m" // yellow
-#define CFG_CRL6 "\033[1;95m" // magenta
-#define CFG_CRL7 "\033[1;96m" // cyan
-#define CFG_CRL8 "\033[1;97m" // white
+#define CFG_CLR1 "\033[1;90m" // grey
+#define CFG_CLR2 "\033[1;91m" // red
+#define CFG_CLR3 "\033[1;94m" // blue
+#define CFG_CLR4 "\033[1;32m" // green
+#define CFG_CLR5 "\033[1;33m" // yellow
+#define CFG_CLR6 "\033[1;95m" // magenta
+#define CFG_CLR7 "\033[1;96m" // cyan
+#define CFG_CLR8 "\033[1;97m" // white
 
 // Random chances (1 in X)
 #define CFG_CHANCE_BOSS 10
