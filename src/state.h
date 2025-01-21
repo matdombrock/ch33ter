@@ -11,6 +11,7 @@ struct State {
     int wins;
     int losses;
     int draws;
+    int lvl;
     char username[1024];
     char password[1024];
 };
@@ -23,6 +24,7 @@ struct State state_new() {
     state.wins = 0;
     state.losses = 0;
     state.draws = 0;
+    state.lvl = 1;
     for (int i = 0; i < MAX_CHEAT_SLOTS; i++) {
         state.cheats[i] = -1;
     }
@@ -76,7 +78,7 @@ void state_print_cheats(struct State *state, struct Cheat cheats_list[]) {
 }
 // Simple prints ensure color
 void state_print_gold(struct State *state) {
-    printfc(CLR4, "Your Gold: %d\n", state->gold);
+    printfc(CLR4, "Your Gold: $%d\n", state->gold);
 }
 void state_print_scanner_lvl(struct State *state) {
     printfc(CLR3, "Scanner LVL: %d/%d\n", state->scanner_lvl, SCAN_LVL_MAX);
@@ -87,6 +89,9 @@ void state_print_cheat_slots(struct State *state) {
 void state_print_open_cheat_slots(struct State *state) {
     printfc(CLR5, "Open Cheat Slots: %d\n", state->cheat_slots - state_count_cheats(state));
 }
+void state_print_lvl(struct State *state) {
+    printfc(CLR6, "Level: %d\n", state->lvl);
+}
 // Print the player status 
 void state_print_status(struct State *state, bool trunc) {
     printfc(CLR3, "W: %d", state->wins);
@@ -95,6 +100,7 @@ void state_print_status(struct State *state, bool trunc) {
     printfc(CLR8, " T: %d\n", state->wins + state->losses + state->draws);
     state_print_gold(state);
     if (trunc) return;
+    state_print_lvl(state);
     state_print_cheat_slots(state);
     state_print_open_cheat_slots(state);
     state_print_scanner_lvl(state);

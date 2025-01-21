@@ -120,7 +120,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         off++;
     }
     // Mult
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         char name[32];
         sprintf(name, "w1ndf4llx%d", i);
         cheats_list[off] = cheat_new(name);
@@ -128,7 +128,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheat_sync(&cheats_list[off]);
         off++;
     }
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         char name[32];
         sprintf(name, "b0mbx%d", i);
         cheats_list[off] = cheat_new(name);
@@ -137,7 +137,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheat_sync(&cheats_list[off]);
         off++;
     }
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         char name[32];
         sprintf(name, "f1r3st0rmx%d", i);
         cheats_list[off] = cheat_new(name);
@@ -147,7 +147,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         off++;
     }
     // Div
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         char name[32];
         sprintf(name, "f0rg3x%d", i);
         cheats_list[off] = cheat_new(name);
@@ -155,7 +155,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheat_sync(&cheats_list[off]);
         off++;
     }
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         char name[32];
         sprintf(name, "f41lx%d", i);
         cheats_list[off] = cheat_new(name);
@@ -164,7 +164,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheat_sync(&cheats_list[off]);
         off++;
     }
-    for (int i = 0; i < GOAL_NUM; i++) {
+    for (int i = 0; i < GOAL_NUM_H; i++) {
         char name[32];
         sprintf(name, "4ng3lx%d", i);
         cheats_list[off] = cheat_new(name);

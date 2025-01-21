@@ -115,6 +115,7 @@ int main() {
         }
         if (match.ended) {
             random_encounters(&state, cheats_list);
+            state.lvl = state.wins + state.losses + state.draws;
             match_start(&state, &match);
         }
     }

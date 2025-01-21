@@ -24,10 +24,12 @@ struct Match {
 // Print the score bar
 void match_print_score_bar(int total) {
     int per = (int)((float)TERM_WIDTH / GOAL_NUM + 0.5f);
+    enum Color color = total > GOAL_NUM ? CLR2 : CLR5;
+    color = total == GOAL_NUM ? CLR3 : color;
     for (int i = 0; i < GOAL_NUM; i++) {
         if (i < total) {
             for (int j = 0; j < per; j++) {
-                printfc(total > GOAL_NUM ? CLR2 : CLR5, "█");
+                printfc(color, "█");
             }
         } else {
             for (int j = 0; j < per; j++) {
@@ -138,6 +140,10 @@ void match_start(struct State *state, struct Match *match) {
     print_subtitle(CLR2, "Match Started");
     match_print_opponent(state, match);
     state_print_gold(state);
+    int base_stakes = state->lvl;
+    if (match->opponent.trait_high_stakes) base_stakes *= 2;
+    if (match->opponent.is_boss) base_stakes *= 2; 
+    printfc(CLR1, "Stakes: $%d-$%d \n", base_stakes, base_stakes * 2);
     print_div();
 }
 // End a match
@@ -146,26 +152,14 @@ void match_end_screen(struct Match *match, struct State *state, struct Cheat che
     print_subtitle(CLR2, "Match Ended");
     input_to_continue();
     // Update gold
-    int gained = 0;
-    if (won == 1) {
-        gained += 1;
-        if (match->player_total == GOAL_NUM) {
-            gained += 1;
-        }
-    }
-    if (won == 0) {
-        gained -= 1;
-        if (match->player_total > GOAL_NUM) {
-            gained -= 2;
-        }
-    }
-    if (match->opponent.trait_high_stakes) {
-        gained *= 2;
-    }
-    if (match->opponent.is_boss) {
-        gained *= 3;
-    }
-    state->gold += gained;
+    int gold_delta = 0;
+    if (won == 1) gold_delta = state->lvl;
+    if (won == 0) gold_delta = -state->lvl;
+    if (match->player_total == GOAL_NUM) gold_delta *= 2;
+    else if (match->player_total > GOAL_NUM) gold_delta *= 2;
+    if (match->opponent.trait_high_stakes) gold_delta *= 2;
+    if (match->opponent.is_boss) gold_delta *= 2;
+    state->gold += gold_delta;
     // Update match record
     if (won == 0) state->losses++;
     if (won == 1) state->wins++;
@@ -188,9 +182,9 @@ void match_end_screen(struct Match *match, struct State *state, struct Cheat che
     match_print(match);
     input_to_continue();
     clear_screen("Match Summary");
-    if (gained == 0) printfc(CLR1, "// Gained no gold\n");
-    if (gained > 0) printfc(CLR4, "++ Gained %d gold\n", gained);
-    if (gained < 0) printfc(CLR2, "-- Lost %d gold\n", -gained);
+    if (gold_delta == 0) printfc(CLR1, "// Gained no gold\n");
+    if (gold_delta > 0) printfc(CLR4, "++ Gained %d gold\n", gold_delta);
+    if (gold_delta < 0) printfc(CLR2, "-- Lost %d gold\n", -gold_delta);
     if (match->opponent.trait_high_stakes) printfc(CLR4, "(Match was HI-STAKES)\n");
     state_print_status(state, 1);
     if (won == 1) printfc(CLR4, "You got a loot box for winning!");
