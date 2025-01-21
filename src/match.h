@@ -143,7 +143,6 @@ void match_start(struct State *state, struct Match *match) {
         match->opponent.trait_cheater = true;
         match->opponent.trait_high_stakes = true;
     }
-    print_div();
     print_subtitle(CLR2, "Match Started");
     match_print_opponent(state, match);
     state_print_gold(state);
@@ -151,7 +150,6 @@ void match_start(struct State *state, struct Match *match) {
     if (match->opponent.trait_high_stakes) base_stakes *= 2;
     if (match->opponent.is_boss) base_stakes *= 2; 
     printfc(CLR1, "Stakes: $%d-$%d (lvl %d)\n", base_stakes, base_stakes * 2, state->lvl);
-    print_div();
 }
 void match_print_res_art(enum Match_Res match_res) {
     if (match_res == MATCH_RES_LOSE) print_lose();

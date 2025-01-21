@@ -1,6 +1,6 @@
 ## INTRO
 
-Ch33ter is a cross-platform terminal game written in C (99).
+Ch33ter is a small cross-platform rogue-like game written in C-99.
 
     YOU WILL BE CHALLENGED IN A GAME SOMETHING
     LIKE WHAT YOU MIGHT CALL '21'.

@@ -11,13 +11,13 @@ void welcome_screen(struct State *state) {
     printfc(CLR6, "- It is not connected to the internet.\n");
     printfc(CLR6, "- It does not collect any data.\n");
     printfc(CLR6, "- It does not send any data.\n");
-    printfc(CLR1, "The 'login' data is used to generate an\nRNG seed.");
+    printfc(CLR1, "The 'login' data is used to generate a\nRNG seed.");
     input_to_continue();
     clear_screen("SIGN IN");
     print_logo();
     input_get_string("new userseed: ", state->username);
-    clear_screen("SIGN IN");
-    print_logo();
+    // clear_screen("SIGN IN");
+    // print_logo();
     input_get_string("new passseed: ", state->password);
     int seed_sum = 0;
     for (int i = 0; i < strlen(state->username); i++) {
