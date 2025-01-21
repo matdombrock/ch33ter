@@ -18,9 +18,9 @@ struct State {
 // Create a new state
 struct State state_new() {
     struct State state;
-    state.gold = STARTING_GOLD;
-    state.cheat_slots = STARTING_CHEAT_SLOTS;
-    state.scanner_lvl = STARTING_SCANNER_LVL;
+    state.gold = CFG_STARTING_GOLD;
+    state.cheat_slots = CFG_STARTING_CHEAT_SLOTS;
+    state.scanner_lvl = CFG_STARTING_SCANNER_LVL;
     state.wins = 0;
     state.losses = 0;
     state.draws = 0;
@@ -41,8 +41,8 @@ bool state_attempt_gain_cheat(struct State* state, struct Cheat cheats_list[], i
             return gained;
         }
     }
-    if (gained) printfc(CLR1, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
-    else printfc(CLR2, "Attempted to gain %s\nbut there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
+    if (gained) printfc(CFG_CLR1, "Gained Cheat: %s\n", cheats_list[cheat_list_index].name);
+    else printfc(CFG_CLR2, "Attempted to gain %s\nbut there are no more cheat slots available\n", cheats_list[cheat_list_index].name);
     return gained;
 }
 // Use a cheat - returns the index of the cheat used or -1 if not found
@@ -66,38 +66,38 @@ int state_count_cheats(struct State *state) {
 // Print the cheats in the state
 void state_print_cheats(struct State *state, struct Cheat cheats_list[]) {
     for (int i = 0; i < state->cheat_slots; i++) {
-        printfc(CLR1, "%d. ", i + 1);
+        printfc(CFG_CLR1, "%d. ", i + 1);
         if (state->cheats[i] != -1) {
             cheat_print(&cheats_list[state->cheats[i]]);
         }
         else {
-            printfc(CLR1, "---\n");
+            printfc(CFG_CLR1, "---\n");
         }
     }
-    printfc(CLR1, "\n");
+    printfc(CFG_CLR1, "\n");
 }
 // Simple prints ensure color
 void state_print_gold(struct State *state) {
-    printfc(CLR4, "Your Gold: $%d\n", state->gold);
+    printfc(CFG_CLR4, "Your Gold: $%d\n", state->gold);
 }
 void state_print_scanner_lvl(struct State *state) {
-    printfc(CLR3, "Scanner LVL: %d/%d\n", state->scanner_lvl, SCAN_LVL_MAX);
+    printfc(CFG_CLR3, "Scanner LVL: %d/%d\n", state->scanner_lvl, SCAN_LVL_MAX);
 }
 void state_print_cheat_slots(struct State *state) {
-    printfc(CLR5, "Cheat Slots: %d/%d\n", state->cheat_slots, MAX_CHEAT_SLOTS);
+    printfc(CFG_CLR5, "Cheat Slots: %d/%d\n", state->cheat_slots, MAX_CHEAT_SLOTS);
 }
 void state_print_open_cheat_slots(struct State *state) {
-    printfc(CLR5, "Open Cheat Slots: %d\n", state->cheat_slots - state_count_cheats(state));
+    printfc(CFG_CLR5, "Open Cheat Slots: %d\n", state->cheat_slots - state_count_cheats(state));
 }
 void state_print_lvl(struct State *state) {
-    printfc(CLR6, "Level: %d\n", state->lvl);
+    printfc(CFG_CLR6, "Level: %d\n", state->lvl);
 }
 // Print the player status 
 void state_print_status(struct State *state, bool trunc) {
-    printfc(CLR3, "W: %d", state->wins);
-    printfc(CLR2, " L: %d", state->losses);
-    printfc(CLR4, " D: %d", state->draws);
-    printfc(CLR8, " T: %d\n", state->wins + state->losses + state->draws);
+    printfc(CFG_CLR3, "W: %d", state->wins);
+    printfc(CFG_CLR2, " L: %d", state->losses);
+    printfc(CFG_CLR4, " D: %d", state->draws);
+    printfc(CFG_CLR8, " T: %d\n", state->wins + state->losses + state->draws);
     state_print_gold(state);
     if (trunc) return;
     state_print_lvl(state);

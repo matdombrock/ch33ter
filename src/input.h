@@ -21,8 +21,8 @@ void set_console_output(){
 // Get a single character of input
 char input_get() {
     char input;
-#if USE_RAW_INPUT 
-    printfc(CLR7, "██████████████▛ Awaiting Input ▜▛ ");
+#if CFG_USE_RAW_INPUT 
+    printfc(CFG_CLR7, "██████████████▛ Awaiting Input ▜▛ ");
 #ifdef _WIN32
     input = _getch();
 #else
@@ -32,7 +32,7 @@ char input_get() {
 #endif
     clear_screen("ch33ter");   
 #else
-    printfc(CLR7, "██████████████▛ Awaiting Input ▜▛ ");
+    printfc(CFG_CLR7, "██████████████▛ Awaiting Input ▜▛ ");
     scanf("%c", &input);
     // clear the buffer
     while(getchar() != '\n');
@@ -42,7 +42,7 @@ char input_get() {
 }
 
 void input_get_string(char text[], char *input) {
-    printfc(CLR8, "%s", text);
+    printfc(CFG_CLR8, "%s", text);
     scanf("%s", input);
     // clear the buffer
     while(getchar() != '\n');
@@ -51,7 +51,7 @@ void input_get_string(char text[], char *input) {
 // Press any key to continue
 void input_to_continue() {
     // Wait for user input
-    printfc(CLR6, "\n\n██████████████       Press any key to continue       ██████████████\n");
+    printfc(CFG_CLR6, "\n\n██████████████       Press any key to continue       ██████████████\n");
 #ifdef _WIN32
     _getch();
 #else

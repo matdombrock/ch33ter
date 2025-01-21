@@ -31,8 +31,8 @@ enum Match_Res {
 // Print the score bar
 void match_print_score_bar(int total) {
     int per = (int)((float)TERM_WIDTH / GOAL_NUM + 0.5f);
-    enum Color color = total > GOAL_NUM ? CLR2 : CLR5;
-    color = total == GOAL_NUM ? CLR3 : color;
+    enum Color color = total > GOAL_NUM ? CFG_CLR2 : CFG_CLR5;
+    color = total == GOAL_NUM ? CFG_CLR3 : color;
     for (int i = 0; i < GOAL_NUM; i++) {
         if (i < total) {
             for (int j = 0; j < per; j++) {
@@ -40,17 +40,17 @@ void match_print_score_bar(int total) {
             }
         } else {
             for (int j = 0; j < per; j++) {
-                printfc(CLR8, "▒");
+                printfc(CFG_CLR8, "▒");
             }
         }
     }
-    printfc(CLR3, "|");
+    printfc(CFG_CLR3, "|");
 }
 // Print the opponent info
 void match_print_opponent(struct State *state, struct Match *match) {
-    printfc(CLR3, ">> Scanning Opponent With Scanner LVL %d/%d <<\n", state->scanner_lvl, SCAN_LVL_MAX);
-    printfc(CLR6, "Opponent: %s\n", match->opponent.name);
-    printfc(CLR5, "⚄⚀ Die sides: %d\n", match->opponent.die_sides);
+    printfc(CFG_CLR3, ">> Scanning Opponent With Scanner LVL %d/%d <<\n", state->scanner_lvl, SCAN_LVL_MAX);
+    printfc(CFG_CLR6, "Opponent: %s\n", match->opponent.name);
+    printfc(CFG_CLR5, "⚄⚀ Die sides: %d\n", match->opponent.die_sides);
     char unknown[] = "?";
     char yes[] = "Y";
     char no[] = "N";
@@ -66,9 +66,9 @@ void match_print_opponent(struct State *state, struct Match *match) {
     strcpy(caution, unknown);
     char caution_hold[16];
     strcpy(caution_hold, unknown);
-    enum Color unknown_color = CLR1;
-    enum Color yes_color = CLR2;
-    enum Color no_color = CLR3;
+    enum Color unknown_color = CFG_CLR1;
+    enum Color yes_color = CFG_CLR2;
+    enum Color no_color = CFG_CLR3;
     enum Color aggressive_color = unknown_color;
     enum Color clever_color = unknown_color;
     enum Color cheater_color = unknown_color;
@@ -99,16 +99,16 @@ void match_print_opponent(struct State *state, struct Match *match) {
     printfc(clever_color, "㈫ Clever: %s \n", clever);
     printfc(cheater_color,     "㊋ Cheater: %s   | ", cheater);
     printfc(aggressive_color, "㈫ Aggressive: %s \n", aggressive);
-    printfc(CLR5, "㈫ Caution: %s (Usually holds at %s) \n", caution, caution_hold);
+    printfc(CFG_CLR5, "㈫ Caution: %s (Usually holds at %s) \n", caution, caution_hold);
     print_div();
 }
 // Print the match info
 void match_print(struct Match *match) {
     print_div();
-    printfc(CLR5, "player total: %d\n", match->player_total);
+    printfc(CFG_CLR5, "player total: %d\n", match->player_total);
     match_print_score_bar(match->player_total);
     printf("\n");
-    printfc(CLR7, "%s total: %d\n", match->opponent.name, match->opponent_total);
+    printfc(CFG_CLR7, "%s total: %d\n", match->opponent.name, match->opponent_total);
     match_print_score_bar(match->opponent_total);
     printf("\n");
     print_div();
@@ -131,7 +131,7 @@ void match_start(struct State *state, struct Match *match) {
     match->ended = false;
     opponent_name_rand(match->opponent.name);
     // Boss
-    if (state->wins >= 7 && rand() % CHANCE_BOSS == 0) {
+    if (state->wins >= 7 && rand() % CFG_CHANCE_BOSS == 0) {
         char boss_name[128];
         sprintf(boss_name, "㊋ mega %s ㊋", match->opponent.name);
         strcpy(match->opponent.name, boss_name);
@@ -144,13 +144,13 @@ void match_start(struct State *state, struct Match *match) {
         match->opponent.trait_high_stakes = true;
     }
     print_div();
-    print_subtitle(CLR2, "Match Started");
+    print_subtitle(CFG_CLR2, "Match Started");
     match_print_opponent(state, match);
     state_print_gold(state);
     int base_stakes = state->lvl;
     if (match->opponent.trait_high_stakes) base_stakes *= 2;
     if (match->opponent.is_boss) base_stakes *= 2; 
-    printfc(CLR1, "Stakes: $%d-$%d \n", base_stakes, base_stakes * 2);
+    printfc(CFG_CLR1, "Stakes: $%d-$%d \n", base_stakes, base_stakes * 2);
     print_div();
 }
 void match_print_res_art(enum Match_Res match_res) {
@@ -163,7 +163,7 @@ void match_print_res_art(enum Match_Res match_res) {
 // End a match
 // TODO: should not include initial subtitle
 void match_end_screen(struct Match *match, struct State *state, struct Cheat cheats_list[], enum Match_Res match_res, char msg[]) { 
-    print_subtitle(CLR2, "Match Ended");
+    print_subtitle(CFG_CLR2, "Match Ended");
     input_to_continue();
     // Update gold
     int gold_delta = 0;
@@ -182,7 +182,7 @@ void match_end_screen(struct Match *match, struct State *state, struct Cheat che
     if (match_res >= MATCH_RES_WIN) state->wins++;
     if (match_res == MATCH_RES_SLAM) state->wins++;
     // Draw to screen
-    enum Color result_colors[5] = {CLR2, CLR4, CLR5, CLR3, CLR6};
+    enum Color result_colors[5] = {CFG_CLR2, CFG_CLR4, CFG_CLR5, CFG_CLR3, CFG_CLR6};
     enum Color result_color = result_colors[match_res];
     clear_screen("Match Summary");
     match_print_res_art(match_res);
@@ -192,13 +192,13 @@ void match_end_screen(struct Match *match, struct State *state, struct Cheat che
     clear_screen("Match Summary");
     printfc(result_color, "%s\n", msg);
     match_print_opponent(state, match);
-    if (gold_delta == 0) printfc(CLR1, "// Gained no gold\n");
-    if (gold_delta > 0) printfc(CLR4, "++ Gained %d gold\n", gold_delta);
-    if (gold_delta < 0) printfc(CLR2, "-- Lost %d gold\n", -gold_delta);
-    if (match->opponent.trait_high_stakes) printfc(CLR4, "(Match was HI-STAKES)\n");
+    if (gold_delta == 0) printfc(CFG_CLR1, "// Gained no gold\n");
+    if (gold_delta > 0) printfc(CFG_CLR4, "++ Gained %d gold\n", gold_delta);
+    if (gold_delta < 0) printfc(CFG_CLR2, "-- Lost %d gold\n", -gold_delta);
+    if (match->opponent.trait_high_stakes) printfc(CFG_CLR4, "(Match was HI-STAKES)\n");
     state_print_status(state, 1);
     // All results greater than DRAW are wins
-    if (match_res > MATCH_RES_DRAW) printfc(CLR4, "You got a loot box for winning!");
+    if (match_res > MATCH_RES_DRAW) printfc(CFG_CLR4, "You got a loot box for winning!");
     input_to_continue();
     // Get new cheat
     if (match_res > MATCH_RES_DRAW) loot_box_screen(state, cheats_list);

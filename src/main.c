@@ -48,60 +48,60 @@ int main() {
         print_div();
         char input = input_get();
         switch (input) {
-            case CMD_USE_CHEAT_1:
+            case CFG_CMD_USE_CHEAT_1:
                 cmd_use_cheat(&state, &match, 0, cheats_list);
                 break;
-            case CMD_USE_CHEAT_2:
+            case CFG_CMD_USE_CHEAT_2:
                 cmd_use_cheat(&state, &match, 1, cheats_list);
                 break;
-            case CMD_USE_CHEAT_3:
+            case CFG_CMD_USE_CHEAT_3:
                 cmd_use_cheat(&state, &match, 2, cheats_list);
                 break;
-            case CMD_USE_CHEAT_4: 
+            case CFG_CMD_USE_CHEAT_4: 
                 cmd_use_cheat(&state, &match, 3, cheats_list);
                 break;
-            case CMD_USE_CHEAT_5:
+            case CFG_CMD_USE_CHEAT_5:
                 cmd_use_cheat(&state, &match, 4, cheats_list);
                 break;
-            case CMD_USE_CHEAT_6:
+            case CFG_CMD_USE_CHEAT_6:
                 cmd_use_cheat(&state, &match, 5, cheats_list);
                 break;
-            case CMD_USE_CHEAT_7:
+            case CFG_CMD_USE_CHEAT_7:
                 cmd_use_cheat(&state, &match, 6, cheats_list);
                 break;
-            case CMD_USE_CHEAT_8:
+            case CFG_CMD_USE_CHEAT_8:
                 cmd_use_cheat(&state, &match, 7, cheats_list);
                 break;
-            case CMD_ROLL:
+            case CFG_CMD_ROLL:
                 cmd_roll(&match);
                 break;
-            case CMD_HOLD:
+            case CFG_CMD_HOLD:
                 cmd_hold(&match);
                 break;
-            case CMD_CHEAT_LIST:
+            case CFG_CMD_CHEAT_LIST:
                 cmd_cheat_list(&state, cheats_list);
                 break;
-            case CMD_OPPONENT:
+            case CFG_CMD_OPPONENT:
                 cmd_opponent(&state, &match);
                 break;
-            case CMD_STATUS:
+            case CFG_CMD_STATUS:
                 cmd_status(&state);
                 break;
-            case CMD_HELP:
+            case CFG_CMD_HELP:
                 cmd_help();
                 break;
-            case CMD_QUIT:
-                printfc(CLR8, "You really want to quit?\n");
-                printfc(CLR3, "Press %c to confirm\n", CMD_QUIT);
+            case CFG_CMD_QUIT:
+                printfc(CFG_CLR8, "You really want to quit?\n");
+                printfc(CFG_CLR3, "Press %c to confirm\n", CFG_CMD_QUIT);
                 char input = input_get();
-                if (input == CMD_QUIT) { 
-                    printfc(CLR8, "player quit!\n");
+                if (input == CFG_CMD_QUIT) { 
+                    printfc(CFG_CLR8, "player quit!\n");
                     run = 0;
                     break;
                 }
             default:
-                printfc(CLR2, "Invalid input\n");
-                printfc(CLR3, "Press %c for help\n", CMD_HELP);
+                printfc(CFG_CLR2, "Invalid input\n");
+                printfc(CFG_CLR3, "Press %c for help\n", CFG_CMD_HELP);
         }
         if (run == 0) break;
         // Show match info
@@ -120,6 +120,6 @@ int main() {
             match_start(&state, &match);
         }
     }
-    printfc(CLR1, "goodbye\n");
+    printfc(CFG_CLR1, "goodbye\n");
     return 0;
 }
