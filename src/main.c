@@ -9,15 +9,15 @@
 #include "_config.h"
 #include "util.h"
 #include "input.h"
-#include "opponent_names.h"
+#include "opponent_name.h"
 #include "cheat.h"
 #include "state.h"
-#include "screens.h"
+#include "screen.h"
 #include "vendor.h"
 #include "match.h"
 #include "opponent_turn.h"
-#include "random_encounters.h"
-#include "commands.h"
+#include "random_encounter.h"
+#include "command.h"
 
 //
 // Main Loop
