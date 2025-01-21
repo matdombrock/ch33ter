@@ -42,21 +42,21 @@ void cheat_sync(struct Cheat *cheat) {
 }
 // Print a cheat
 void cheat_print(struct Cheat *cheat) {
-    printfc(CFG_CLR3, "%s ", cheat->name);
-    if (cheat->affects == 0) printfc(CFG_CLR5, "| plr ");
-    if (cheat->affects == 1) printfc(CFG_CLR5, "| opn ");
-    if (cheat->affects == 2) printfc(CFG_CLR5, "| bth ");
-    if (cheat->add != 0) printfc(CFG_CLR4, "| +%d ", cheat->add);
-    if (cheat->sub != 0) printfc(CFG_CLR4, "| -%d ", cheat->sub);
-    if (cheat->div != 0) printfc(CFG_CLR4, "| /%d ", cheat->div);
-    if (cheat->mult != 0) printfc(CFG_CLR4, "| *%d ", cheat->mult);
-    if (cheat->set != 0) printfc(CFG_CLR4, "| =%d ", cheat->set);
-    if (cheat->swap) printfc(CFG_CLR4, "| swp ");
-    if (cheat->invert) printfc(CFG_CLR4, "| inv ");
-    if (cheat->reset) printfc(CFG_CLR4, "| rst");
-    if (cheat->match_high) printfc(CFG_CLR4, "| =H ");
-    if (cheat->match_low) printfc(CFG_CLR4, "| =L ");
-    printfc(CFG_CLR1, "\n");
+    printfc(CRL3, "%s ", cheat->name);
+    if (cheat->affects == 0) printfc(CRL5, "| plr ");
+    if (cheat->affects == 1) printfc(CRL5, "| opn ");
+    if (cheat->affects == 2) printfc(CRL5, "| bth ");
+    if (cheat->add != 0) printfc(CRL4, "| +%d ", cheat->add);
+    if (cheat->sub != 0) printfc(CRL4, "| -%d ", cheat->sub);
+    if (cheat->div != 0) printfc(CRL4, "| /%d ", cheat->div);
+    if (cheat->mult != 0) printfc(CRL4, "| *%d ", cheat->mult);
+    if (cheat->set != 0) printfc(CRL4, "| =%d ", cheat->set);
+    if (cheat->swap) printfc(CRL4, "| swp ");
+    if (cheat->invert) printfc(CRL4, "| inv ");
+    if (cheat->reset) printfc(CRL4, "| rst");
+    if (cheat->match_high) printfc(CRL4, "| =H ");
+    if (cheat->match_low) printfc(CRL4, "| =L ");
+    printfc(CRL1, "\n");
     clr_end();
 }
 //
@@ -289,7 +289,7 @@ void cheats_list_init(struct Cheat *cheats_list) {
         for (int i = 0; i < off; i++) {
             cheat_print(&cheats_list[i]);
         }
-        printfc(CFG_CLR1, "Cheat Count: %d\n", off);
+        printfc(CRL1, "Cheat Count: %d\n", off);
         exit(0);
     }
 }

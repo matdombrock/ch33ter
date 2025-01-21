@@ -1,9 +1,9 @@
 // Purchase from the vendor
 void vendor_purchase_screen(struct State *state, struct Cheat cheats_list[], int *cheat_index, int *cheat_price) {
     clear_screen("Purchasing");
-    printfc(CFG_CLR4, "You ask to purchase %s\n", cheats_list[cheat_index[0]].name);
+    printfc(CRL4, "You ask to purchase %s\n", cheats_list[cheat_index[0]].name);
     if (state_count_cheats(state) >= state->cheat_slots) {
-        printfc(CFG_CLR2, "But you have no more cheat slots available!\n");
+        printfc(CRL2, "But you have no more cheat slots available!\n");
     }
     else if (state->gold >= cheat_price[0]) {
         state->gold -= cheat_price[0];
@@ -12,7 +12,7 @@ void vendor_purchase_screen(struct State *state, struct Cheat cheats_list[], int
         cheat_index[0] = rand() % CFG_MAX_SHOP_PRICE + 1;
     }
     else {
-        printfc(CFG_CLR2, "But you dont have enough gold! (missing: %d)\n", cheat_price[0] - state->gold);
+        printfc(CRL2, "But you dont have enough gold! (missing: %d)\n", cheat_price[0] - state->gold);
     }
     cheat_print(&cheats_list[cheat_index[0]]);
     print_div();
@@ -22,8 +22,8 @@ void vendor_purchase_screen(struct State *state, struct Cheat cheats_list[], int
 }
 
 void vendor_screen(struct State *state, struct Cheat cheats_list[]) {
-    print_subtitle(CFG_CLR3, "Encounter: hacker vendor!");
-    printfc(CFG_CLR1, "After the last match you come across\na hacker who is willing to trade cheats for gold!\n");
+    print_subtitle(CRL3, "Encounter: hacker vendor!");
+    printfc(CRL1, "After the last match you come across\na hacker who is willing to trade cheats for gold!\n");
     input_to_continue();
     int cheat_index[4];
     cheat_index[0] = rand() % CHEATS_AMT;
@@ -45,25 +45,25 @@ void vendor_screen(struct State *state, struct Cheat cheats_list[]) {
         clear_screen("Hacker Vendor");
         state_print_gold(state);
         state_print_open_cheat_slots(state);
-        printfc(CFG_CLR1, "-------\n");
-        printfc(CFG_CLR1, "Goods: \n");
-        printfc(CFG_CLR1, "1. $%d - ", cheat_price[0]);
+        printfc(CRL1, "-------\n");
+        printfc(CRL1, "Goods: \n");
+        printfc(CRL1, "1. $%d - ", cheat_price[0]);
         cheat_print(&cheats_list[cheat_index[0]]);
-        printfc(CFG_CLR1, "2. $%d - ", cheat_price[1]);
+        printfc(CRL1, "2. $%d - ", cheat_price[1]);
         cheat_print(&cheats_list[cheat_index[1]]);
-        printfc(CFG_CLR1, "3. $%d - ", cheat_price[2]);
+        printfc(CRL1, "3. $%d - ", cheat_price[2]);
         cheat_print(&cheats_list[cheat_index[2]]);
-        printfc(CFG_CLR1, "4. $%d - ", cheat_price[3]);
+        printfc(CRL1, "4. $%d - ", cheat_price[3]);
         cheat_print(&cheats_list[cheat_index[3]]);
-        printfc(CFG_CLR1, "5. $10 - loot box\n");
-        printfc(CFG_CLR1, "6. $%d - Upgrade scanner\n", scanner_price);
-        printfc(CFG_CLR1, "7. $%d - Upgrade cheat slots\n", cheat_slots_price);
-        printfc(CFG_CLR1, "8. $1 - Coin flip\n");
-        printfc(CFG_CLR1, "9. $10 - Coin flip\n");
-        printfc(CFG_CLR1, "0. Sell Cheats\n");
-        printfc(CFG_CLR2, "\nPress %c to exit\n", CFG_CMD_QUIT);
+        printfc(CRL1, "5. $10 - loot box\n");
+        printfc(CRL1, "6. $%d - Upgrade scanner\n", scanner_price);
+        printfc(CRL1, "7. $%d - Upgrade cheat slots\n", cheat_slots_price);
+        printfc(CRL1, "8. $1 - Coin flip\n");
+        printfc(CRL1, "9. $10 - Coin flip\n");
+        printfc(CRL1, "0. Sell Cheats\n");
+        printfc(CRL2, "\nPress %c to exit\n", CFG_CMD_QUIT);
         char input = input_get();
-        printfc(CFG_CLR1, "%c\n", input);
+        printfc(CRL1, "%c\n", input);
         switch(input) {
             case CFG_CMD_QUIT:
                 in_shop = 0;
@@ -82,13 +82,13 @@ void vendor_screen(struct State *state, struct Cheat cheats_list[]) {
                 break;
             case '5':
                 clear_screen("Purchase");
-                printfc(CFG_CLR4, "You ask to purchase a loot box\n");
+                printfc(CRL4, "You ask to purchase a loot box\n");
                 if (state->gold >= 10) {
                     state->gold -= 10;
                     loot_box_screen(state, cheats_list);
                 }
                 else {
-                    printfc(CFG_CLR2, "But you dont have enough gold! (missing: %d)\n", 2 - state->gold);
+                    printfc(CRL2, "But you dont have enough gold! (missing: %d)\n", 2 - state->gold);
                     print_div();
                     state_print_gold(state);
                     input_to_continue();
@@ -96,17 +96,17 @@ void vendor_screen(struct State *state, struct Cheat cheats_list[]) {
                 break;
             case '6':
                 clear_screen("Scanner Upgrade");
-                printfc(CFG_CLR4, "You ask to upgrade your scanner\n");
+                printfc(CRL4, "You ask to upgrade your scanner\n");
                 if (state->scanner_lvl >= SCAN_LVL_MAX) {
-                    printfc(CFG_CLR2, "But your scanner is already at max level!\n");
+                    printfc(CRL2, "But your scanner is already at max level!\n");
                 }
                 else if (state->gold >= scanner_price) {
                     state->gold -= scanner_price;
                     state->scanner_lvl++;
-                    printfc(CFG_CLR8, "Scanner upgraded!\n");
+                    printfc(CRL8, "Scanner upgraded!\n");
                 }
                 else {
-                    printfc(CFG_CLR2, "But you dont have enough gold! (missing: %d)\n", 10 - state->gold);
+                    printfc(CRL2, "But you dont have enough gold! (missing: %d)\n", 10 - state->gold);
                 }
                 state_print_scanner_lvl(state);
                 state_print_gold(state);
@@ -114,17 +114,17 @@ void vendor_screen(struct State *state, struct Cheat cheats_list[]) {
                 break;
             case '7':
                 clear_screen("Cheat Slot Upgrade");
-                printfc(CFG_CLR4, "You ask to upgrade your cheat slots\n");
+                printfc(CRL4, "You ask to upgrade your cheat slots\n");
                 if (state->cheat_slots >= MAX_CHEAT_SLOTS) {
-                    printfc(CFG_CLR2, "But your cheat slots are already at max level!\n");
+                    printfc(CRL2, "But your cheat slots are already at max level!\n");
                 }
                 else if (state->gold >= cheat_slots_price) {
                     state->gold -= cheat_slots_price;
                     state->cheat_slots++;
-                    printfc(CFG_CLR8, "Cheat slots upgraded!\n");
+                    printfc(CRL8, "Cheat slots upgraded!\n");
                 }
                 else {
-                    printfc(CFG_CLR2, "But you dont have enough gold! (missing: %d)\n", 15 - state->gold);
+                    printfc(CRL2, "But you dont have enough gold! (missing: %d)\n", 15 - state->gold);
                 }
                 state_print_cheat_slots(state);
                 state_print_gold(state);
@@ -138,10 +138,10 @@ void vendor_screen(struct State *state, struct Cheat cheats_list[]) {
                 break;
             case '0':
                 clear_screen("Selling");
-                printfc(CFG_CLR4, "You ask to sell cheats\n");
+                printfc(CRL4, "You ask to sell cheats\n");
                 state_print_cheats(state, cheats_list);
-                printfc(CFG_CLR4, "Which cheat would you like to sell?\n");
-                printfc(CFG_CLR2, "\nPress %c to exit\n", CFG_CMD_QUIT);
+                printfc(CRL4, "Which cheat would you like to sell?\n");
+                printfc(CRL2, "\nPress %c to exit\n", CFG_CMD_QUIT);
                 char slotc = input_get();
                 if (slotc == CFG_CMD_QUIT) break;
                 clear_screen("Selling");
@@ -149,32 +149,32 @@ void vendor_screen(struct State *state, struct Cheat cheats_list[]) {
                 int price = rand() % (CFG_MAX_SHOP_PRICE / 3) + 1;
                 if (slot >= 0 && slot < state->cheat_slots) {
                     if (state->cheats[slot] != -1) {
-                        printfc(CFG_CLR4, "You sold: ");
+                        printfc(CRL4, "You sold: ");
                         cheat_print(&cheats_list[state->cheats[slot]]);
-                        printfc(CFG_CLR4, "For %d gold!\n", price);
+                        printfc(CRL4, "For %d gold!\n", price);
                         state->gold += price;
                         state->cheats[slot] = -1;
                     }
                     else {
-                        printfc(CFG_CLR2, "But there is no cheat in that slot!\n");
+                        printfc(CRL2, "But there is no cheat in that slot!\n");
                     }
                 }
                 else {
-                    printfc(CFG_CLR2, "Invalid input\n");
+                    printfc(CRL2, "Invalid input\n");
                 }
                 state_print_gold(state);
                 input_to_continue();
                 break;
             default:
                 clear_screen("Invalid Input");
-                printfc(CFG_CLR2, "Input not recognized\n");
-                printfc(CFG_CLR3, "\nPress %c at vendor screen to quit\n", CFG_CMD_QUIT);
+                printfc(CRL2, "Input not recognized\n");
+                printfc(CRL3, "\nPress %c at vendor screen to quit\n", CFG_CMD_QUIT);
                 input_to_continue();
                 break;
         }
     }
     clear_screen("Exit Vendor");
-    printfc(CFG_CLR4, "You exit the vendor\n");
+    printfc(CRL4, "You exit the vendor\n");
     state_print_status(state, 1);
     state_print_cheats(state, cheats_list);
     input_to_continue();

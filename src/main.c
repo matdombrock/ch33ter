@@ -91,17 +91,17 @@ int main() {
                 cmd_help();
                 break;
             case CFG_CMD_QUIT:
-                printfc(CFG_CLR8, "You really want to quit?\n");
-                printfc(CFG_CLR3, "Press %c to confirm\n", CFG_CMD_QUIT);
+                printfc(CRL8, "You really want to quit?\n");
+                printfc(CRL3, "Press %c to confirm\n", CFG_CMD_QUIT);
                 char input = input_get();
                 if (input == CFG_CMD_QUIT) { 
-                    printfc(CFG_CLR8, "player quit!\n");
+                    printfc(CRL8, "player quit!\n");
                     run = 0;
                     break;
                 }
             default:
-                printfc(CFG_CLR2, "Invalid input\n");
-                printfc(CFG_CLR3, "Press %c for help\n", CFG_CMD_HELP);
+                printfc(CRL2, "Invalid input\n");
+                printfc(CRL3, "Press %c for help\n", CFG_CMD_HELP);
         }
         if (run == 0) break;
         // Show match info
@@ -120,6 +120,6 @@ int main() {
             match_start(&state, &match);
         }
     }
-    printfc(CFG_CLR1, "goodbye\n");
+    printfc(CRL1, "goodbye\n");
     return 0;
 }
