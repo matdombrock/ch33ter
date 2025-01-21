@@ -38,7 +38,7 @@
 // Random chances (1 in X)
 #define CFG_CHANCE_BOSS 10
 #define CFG_CHANCE_LOOT 3
-#define CFG_CHANCE_VENDOR 1
+#define CFG_CHANCE_VENDOR 5
 #define CFG_CHANCE_PATRON 5
 #define CFG_CHANCE_THIEF 8
 #define CFG_CHANCE_FUZZ 13
@@ -51,5 +51,5 @@
 
 // Starting values
 #define CFG_STARTING_GOLD 10
-#define CFG_STARTING_SCANNER_LVL 5
+#define CFG_STARTING_SCANNER_LVL 0
 #define CFG_STARTING_CHEAT_SLOTS 4

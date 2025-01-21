@@ -48,7 +48,7 @@ void match_print_score_bar(int total) {
 }
 // Print the opponent info
 void match_print_opponent(struct State *state, struct Match *match) {
-    printfc(CRL3, ">> Scanning Opponent With Scanner LVL %d/%d <<\n", state->scanner_lvl, SCAN_LVL_MAX);
+    printfc(CRL6, ">> Scanning Opponent With Scanner LVL %d/%d <<\n", state->scanner_lvl, SCAN_LVL_MAX);
     printfc(CRL6, "Opponent: %s\n", match->opponent.name);
     printfc(CRL5, "⚄⚀ Die sides: %d\n", match->opponent.die_sides);
     char unknown[] = "?";
