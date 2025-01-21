@@ -263,10 +263,33 @@ void cheats_list_init(struct Cheat *cheats_list) {
         cheat_sync(&cheats_list[off]);
         off++;
     }
+    // Winners
+    for (int i = 0; i < GOAL_NUM_H; i++) {
+        cheats_list[off] = cheat_new("w1nx");
+        cheats_list[off].set = GOAL_NUM - 1;
+        cheat_sync(&cheats_list[off]);
+        off++;
+    }
+    // Slammers
+    for (int i = 0; i < GOAL_NUM_H; i++) {
+        cheats_list[off] = cheat_new("s14mrx");
+        cheats_list[off].set = GOAL_NUM;
+        cheat_sync(&cheats_list[off]);
+        off++;
+    }
+    // Busters
+    for (int i = 0; i < GOAL_NUM_H; i++) {
+        cheats_list[off] = cheat_new("w1nx");
+        cheats_list[off].affects = 1;
+        cheats_list[off].set = GOAL_NUM + 1;
+        cheat_sync(&cheats_list[off]);
+        off++;
+    }
     if (DEBUG_CHEATS) {
         for (int i = 0; i < off; i++) {
             cheat_print(&cheats_list[i]);
         }
+        printfc(CLR1, "Cheat Count: %d\n", off);
         exit(0);
     }
 }

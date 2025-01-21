@@ -30,7 +30,7 @@ int main() {
     // The welcome screen will set the RNG seed based on the username and password
     welcome_screen(&state);
     // Setup cheats
-    struct Cheat cheats_list[1024];
+    struct Cheat cheats_list[1024]; // CHEATS_AMT
     cheats_list_init(cheats_list);
     // Gain some cheats
     loot_box_screen(&state, cheats_list);

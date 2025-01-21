@@ -21,6 +21,13 @@ struct Match {
     bool ended;
     struct Opponent opponent;
 };
+enum Match_Res {
+    MATCH_RES_LOSE,
+    MATCH_RES_BUST,
+    MATCH_RES_DRAW,
+    MATCH_RES_WIN,
+    MATCH_RES_SLAM,
+};
 // Print the score bar
 void match_print_score_bar(int total) {
     int per = (int)((float)TERM_WIDTH / GOAL_NUM + 0.5f);
@@ -146,84 +153,87 @@ void match_start(struct State *state, struct Match *match) {
     printfc(CLR1, "Stakes: $%d-$%d \n", base_stakes, base_stakes * 2);
     print_div();
 }
+void match_print_res_art(enum Match_Res match_res) {
+    if (match_res == MATCH_RES_LOSE) print_lose();
+    if (match_res == MATCH_RES_BUST) print_bust();
+    if (match_res == MATCH_RES_DRAW) print_draw();
+    if (match_res == MATCH_RES_WIN) print_win();
+    if (match_res == MATCH_RES_SLAM) print_slam();
+}
 // End a match
 // TODO: should not include initial subtitle
-void match_end_screen(struct Match *match, struct State *state, struct Cheat cheats_list[], int won, char msg[]) { // won = 2 == draw
+void match_end_screen(struct Match *match, struct State *state, struct Cheat cheats_list[], enum Match_Res match_res, char msg[]) { 
     print_subtitle(CLR2, "Match Ended");
     input_to_continue();
     // Update gold
     int gold_delta = 0;
-    if (won == 1) gold_delta = state->lvl;
-    if (won == 0) gold_delta = -state->lvl;
-    if (match->player_total == GOAL_NUM) gold_delta *= 2;
-    else if (match->player_total > GOAL_NUM) gold_delta *= 2;
+    // Any res higher win or higher is a win draw sits in middle
+    if (match_res == MATCH_RES_LOSE) gold_delta = -state->lvl;
+    if (match_res == MATCH_RES_WIN) gold_delta = state->lvl;
+    if (match_res == MATCH_RES_SLAM) gold_delta = state->lvl * 2;
+    if (match_res == MATCH_RES_BUST) gold_delta = -state->lvl * 2;
     if (match->opponent.trait_high_stakes) gold_delta *= 2;
     if (match->opponent.is_boss) gold_delta *= 2;
     state->gold += gold_delta;
     // Update match record
-    if (won == 0) state->losses++;
-    if (won == 1) state->wins++;
-    if (won == 2) state->draws++;
+    if (match_res == MATCH_RES_LOSE) state->losses++;
+    if (match_res == MATCH_RES_BUST) state->losses++;
+    if (match_res == MATCH_RES_DRAW) state->draws++;
+    if (match_res >= MATCH_RES_WIN) state->wins++;
+    if (match_res == MATCH_RES_SLAM) state->wins++;
     // Draw to screen
-    enum Color result_colors[3] = {CLR2, CLR4, CLR5};
-    enum Color result_color = result_colors[won];
+    enum Color result_colors[5] = {CLR2, CLR4, CLR5, CLR3, CLR6};
+    enum Color result_color = result_colors[match_res];
     clear_screen("Match Summary");
-    if (won == 1) {
-        print_subtitle(result_color, "WIN!");
-    }
-    if (won == 0) {
-        print_subtitle(result_color, "LOSE!");
-    }
-    if (won == 2) {
-        print_subtitle(result_color, "DRAW!");
-    }
+    match_print_res_art(match_res);
     printfc(result_color, "%s\n", msg);
-    match_print_opponent(state, match);
     match_print(match);
     input_to_continue();
     clear_screen("Match Summary");
+    printfc(result_color, "%s\n", msg);
+    match_print_opponent(state, match);
     if (gold_delta == 0) printfc(CLR1, "// Gained no gold\n");
     if (gold_delta > 0) printfc(CLR4, "++ Gained %d gold\n", gold_delta);
     if (gold_delta < 0) printfc(CLR2, "-- Lost %d gold\n", -gold_delta);
     if (match->opponent.trait_high_stakes) printfc(CLR4, "(Match was HI-STAKES)\n");
     state_print_status(state, 1);
-    if (won == 1) printfc(CLR4, "You got a loot box for winning!");
+    // All results greater than DRAW are wins
+    if (match_res > MATCH_RES_DRAW) printfc(CLR4, "You got a loot box for winning!");
     input_to_continue();
     // Get new cheat
-    if ( won == 1) {
-        loot_box_screen(state, cheats_list);
-    }
+    if (match_res > MATCH_RES_DRAW) loot_box_screen(state, cheats_list);
     match->ended = true;
 }
 // Check if the match has ended
 void match_check(struct Match *match, struct State *state, struct Cheat cheats_list[]) {
     if (match->player_total == GOAL_NUM && match->opponent_total == GOAL_NUM) {
-        match_end_screen(match, state, cheats_list, 2, "Both slammed it!");
+        // TODO: Is this actually a possible outcome?
+        match_end_screen(match, state, cheats_list, MATCH_RES_DRAW, "Both slammed it!");
     }
     else if (match->player_total == GOAL_NUM) {
-        match_end_screen(match, state, cheats_list, 1, "Player slammed it!");
+        match_end_screen(match, state, cheats_list, MATCH_RES_SLAM, "Player slammed it!");
     }
     else if (match->opponent_total == GOAL_NUM) {
-        match_end_screen(match, state, cheats_list, 0, "Opponent slammed it!");
+        match_end_screen(match, state, cheats_list, MATCH_RES_LOSE, "Opponent slammed it!");
     }
     else if (match->player_total > GOAL_NUM && match->opponent_total > GOAL_NUM) {
-        match_end_screen(match, state, cheats_list, 2, "Both bust!");
+        match_end_screen(match, state, cheats_list, MATCH_RES_DRAW, "Both bust!");
     }
     else if (match->opponent_total > GOAL_NUM) {
-        match_end_screen(match, state, cheats_list, 1, "Opponent busts!");
+        match_end_screen(match, state, cheats_list, MATCH_RES_WIN, "Opponent busts!");
     }
     else if (match->player_total > GOAL_NUM) {
-        match_end_screen(match, state, cheats_list, 0, "Player busts!");
+        match_end_screen(match, state, cheats_list, MATCH_RES_BUST, "Player busts!");
     }
     else if (match->player_held && match->opponent_held) {
         if (match->player_total == match->opponent_total) {
-            match_end_screen(match, state, cheats_list, 2, "Even scores!");
+            match_end_screen(match, state, cheats_list, MATCH_RES_DRAW, "Even scores!");
         }
         else if (match->player_total > match->opponent_total) {
-            match_end_screen(match, state, cheats_list, 1, "Player wins with a higher score!");
+            match_end_screen(match, state, cheats_list, MATCH_RES_WIN, "Player wins with a higher score!");
         } 
         else {
-            match_end_screen(match, state, cheats_list, 0, "Opponent wins with a higher score!");
+            match_end_screen(match, state, cheats_list, MATCH_RES_LOSE, "Opponent wins with a higher score!");
         }
     }
 }

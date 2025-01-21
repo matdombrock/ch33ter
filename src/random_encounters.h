@@ -26,7 +26,7 @@ void random_encounters(struct State *state, struct Cheat cheats_list[]) {
         bool in_shop = 1;
         while(in_shop) {
             // update prices
-            int scanner_price = 10 * state->scanner_lvl;
+            int scanner_price = 10 * (state->scanner_lvl + 1);
             int cheat_slots_price = 15 * state->cheat_slots;
             if (state->scanner_lvl >= SCAN_LVL_MAX) scanner_price = 999999;
             if (state->cheat_slots >= MAX_CHEAT_SLOTS) cheat_slots_price = 999999;
